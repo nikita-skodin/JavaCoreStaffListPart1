@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<root>
+    <employee id="ce0ee083-fb9f-4773-8df6-a691f0dc6607">
+        <fullName>Skodin Nikita Dm</fullName>
+        <birthdayDate>2024-01-01</birthdayDate>
+        <hiringDate>2024-01-01</hiringDate>
+    </employee>
+    <manager id="ce0ee083-fb9f-4773-8df6-a691f0dc6607">
+        <fullName>Skodin Nikita Dm</fullName>
+        <birthdayDate>2024-01-01</birthdayDate>
+        <hiringDate>2024-01-01</hiringDate>
+        <subordinates>[]</subordinates>
+    </manager>
+    <otheremployee id="ce0ee083-fb9f-4773-8df6-a691f0dc6607">
+        <fullName>Skodin Nikita Dm</fullName>
+        <birthdayDate>2024-01-01</birthdayDate>
+        <hiringDate>2024-01-01</hiringDate>
+        <description>de</description>
+    </otheremployee>
+</root>
