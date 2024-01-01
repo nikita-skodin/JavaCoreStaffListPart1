@@ -14,7 +14,9 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 public class EmployeeWriter {
@@ -31,23 +33,30 @@ public class EmployeeWriter {
         Element root = document.createElement("employees");
         document.appendChild(root);
 
-        for (Employee employee : employees) {
-            if (employee instanceof Manager) {
-                writeManager((Manager) employee, document, root);
-            } else if (employee instanceof OtherEmployee) {
-                writeOtherEmployee((OtherEmployee) employee, document, root);
-            } else if (employee != null) {
-                writeEmployee(employee, document, root);
-            }
-        }
+        write(document, List.of(employees), root);
 
         // save
         DOMSource dom = new DOMSource(document);
         Transformer transformer = TransformerFactory.newInstance()
                 .newTransformer();
-        StreamResult result = new StreamResult(new File("test.xml"));
+        StreamResult result = new StreamResult(Files.newOutputStream(
+                Path.of("src/test/resources/test.xml"),
+                StandardOpenOption.TRUNCATE_EXISTING,
+                StandardOpenOption.WRITE));
         transformer.transform(dom, result);
 
+    }
+
+    private void write(Document document, List<Employee> employees, Element subordinates) {
+        for (Employee employee : employees) {
+            if (employee instanceof Manager) {
+                writeManager((Manager) employee, document, subordinates);
+            } else if (employee instanceof OtherEmployee) {
+                writeOtherEmployee((OtherEmployee) employee, document, subordinates);
+            } else if (employee != null) {
+                writeEmployee(employee, document, subordinates);
+            }
+        }
     }
 
     private Element writeEmployee(Employee employee, Document document, Element root) {
@@ -73,12 +82,10 @@ public class EmployeeWriter {
     private void writeManager(Manager manager, Document document, Element root) {
         Element element = writeEmployee(manager, document, root);
 
-        List<Employee> list = manager.getSubordinates();
+        List<Employee> employees = manager.getSubordinates();
         Element subordinates = document.createElement("subordinates");
 
-        for (Employee employee : list) {
-            writeEmployee(employee, document, subordinates);
-        }
+        write(document, employees, subordinates);
 
         element.appendChild(subordinates);
     }

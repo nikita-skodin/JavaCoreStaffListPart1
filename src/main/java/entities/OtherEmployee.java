@@ -1,20 +1,24 @@
 package entities;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
+@ToString(callSuper = true)
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OtherEmployee extends Employee{
     String description;
+
+    // TODO get rid of the dependency on the parent object
+    public OtherEmployee (Employee employee, String description){
+        super(employee.getId(), employee.getFullName(), employee.getBirthdayDate(), employee.getHiringDate());
+        this.description = description;
+    }
 
     public OtherEmployee(UUID id, String fullName, LocalDate birthdayDate, LocalDate hiringDate, String description) {
         super(id, fullName, birthdayDate, hiringDate);
