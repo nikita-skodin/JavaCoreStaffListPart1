@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import javax.xml.parsers.ParserConfigurationException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 class EmployeeWriterTest {
@@ -25,13 +26,14 @@ class EmployeeWriterTest {
         Employee employee = new Employee(id, "Skodin Nikita Dm",
                 LocalDate.now(), LocalDate.now());
 
-        Manager manager = new Manager(id, "Skodin Nikita Dm",
-                LocalDate.now(), LocalDate.now(), new ArrayList<>());
-
         OtherEmployee otherEmployee = new OtherEmployee(id, "Skodin Nikita Dm",
                 LocalDate.now(), LocalDate.now(), "de");
 
-        employeeWriter.writeXML(employee, manager, otherEmployee);
+        Manager manager = new Manager(id, "Skodin Nikita Dm",
+                LocalDate.now(), LocalDate.now(), new ArrayList<>(List.of(employee, otherEmployee)));
+
+
+        employeeWriter.writeXML(employee, otherEmployee, manager);
 
     }
 }

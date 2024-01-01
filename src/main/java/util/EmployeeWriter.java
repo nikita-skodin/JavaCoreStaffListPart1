@@ -15,6 +15,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
+import java.util.List;
 
 public class EmployeeWriter {
 
@@ -24,14 +25,14 @@ public class EmployeeWriter {
     }
 
     @SneakyThrows
-    public void writeXML (Employee ... employees){
+    public void writeXML(Employee... employees) {
 
         Document document = builder.newDocument();
-        Element root = document.createElement("root");
+        Element root = document.createElement("employees");
         document.appendChild(root);
 
-        for (Employee employee : employees){
-            if (employee instanceof Manager){
+        for (Employee employee : employees) {
+            if (employee instanceof Manager) {
                 writeManager((Manager) employee, document, root);
             } else if (employee instanceof OtherEmployee) {
                 writeOtherEmployee((OtherEmployee) employee, document, root);
@@ -49,7 +50,7 @@ public class EmployeeWriter {
 
     }
 
-    private Element writeEmployee(Employee employee, Document document, Element root){
+    private Element writeEmployee(Employee employee, Document document, Element root) {
         Element element = document.createElement(employee.getClass().getSimpleName().toLowerCase());
         element.setAttribute("id", employee.getId().toString());
         root.appendChild(element);
@@ -69,15 +70,20 @@ public class EmployeeWriter {
         return element;
     }
 
-    private void writeManager(Manager manager, Document document, Element root){
+    private void writeManager(Manager manager, Document document, Element root) {
         Element element = writeEmployee(manager, document, root);
 
+        List<Employee> list = manager.getSubordinates();
         Element subordinates = document.createElement("subordinates");
-        subordinates.appendChild(document.createTextNode(manager.getSubordinates().toString()));
+
+        for (Employee employee : list) {
+            writeEmployee(employee, document, subordinates);
+        }
+
         element.appendChild(subordinates);
     }
 
-    private void writeOtherEmployee(OtherEmployee otherEmployee, Document document, Element root){
+    private void writeOtherEmployee(OtherEmployee otherEmployee, Document document, Element root) {
         Element element = writeEmployee(otherEmployee, document, root);
 
         Element description = document.createElement("description");
