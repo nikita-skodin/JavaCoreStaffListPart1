@@ -17,11 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EmployeeWriterTest {
 
     private static final String TEMP_FILE_PATH = "src/test/resources/xml/temp.xml";
+    private static final String VALID_FILE_PATH = "src/test/resources/xml/validXML.xml";
     private final EmployeeWriter employeeWriter = new EmployeeWriter();
 
 
@@ -52,9 +53,13 @@ class EmployeeWriterTest {
         Manager manager2 = new Manager(id, "Skodin Nikita Dm",
                 LocalDate.now(), LocalDate.now(), new ArrayList<>(List.of(employee, otherEmployee, manager1)));
 
-        employeeWriter.writeXML(TEMP_FILE_PATH, employee, otherEmployee, manager1, manager2);
+        Manager manager3 = new Manager(id, "Skodin Nikita Dm",
+                LocalDate.now(), LocalDate.now(), new ArrayList<>(List.of(employee, otherEmployee, manager2)));
 
-        String expected = Files.readString(Path.of("src/test/resources/xml/valid.xml"));
+
+        employeeWriter.writeXML(TEMP_FILE_PATH, employee, otherEmployee, manager1, manager2, manager3);
+
+        String expected = Files.readString(Path.of(VALID_FILE_PATH));
         String result = Files.readString(Path.of(TEMP_FILE_PATH));
 
         assertEquals(expected, result);

@@ -4,6 +4,7 @@ import entities.Employee;
 import entities.Manager;
 import entities.OtherEmployee;
 import exceptions.DamagedFileException;
+import exceptions.InvalidTagNameException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -46,7 +47,11 @@ public class EmployeeReader {
 
         Element rootElement = document.getDocumentElement();
 
-        read(rootElement, list);
+        try {
+            read(rootElement, list);
+        } catch (NullPointerException e) {
+            throw new InvalidTagNameException(e.getMessage());
+        }
 
         return list;
     }
@@ -81,13 +86,12 @@ public class EmployeeReader {
     private Manager readManager(Element element) {
 
         ArrayList<Employee> subordinatesList = new ArrayList<>();
-
-        // one tag here
-        NodeList subordinatesNodeList = element.getElementsByTagName("subordinates");
+        NodeList subordinatesNodeList = element.getChildNodes();
 
         for (int i = 0; i < subordinatesNodeList.getLength(); i++) {
             Node subordinatesItem = subordinatesNodeList.item(i);
-            if (subordinatesItem instanceof Element subordinatesElement) {
+            if (subordinatesItem instanceof Element subordinatesElement
+                    && subordinatesElement.getTagName().equals("subordinates")) {
                 read(subordinatesElement, subordinatesList);
             }
         }
