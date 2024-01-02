@@ -3,25 +3,42 @@ package util;
 import entities.Employee;
 import entities.Manager;
 import entities.OtherEmployee;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 class EmployeeWriterTest {
 
+    private static final String TEMP_FILE_PATH = "src/test/resources/xml/temp.xml";
     private final EmployeeWriter employeeWriter = new EmployeeWriter();
 
-    EmployeeWriterTest() throws ParserConfigurationException {
+
+    @BeforeEach
+    void setUp() throws IOException {
+        Files.createFile(Paths.get(TEMP_FILE_PATH));
+    }
+
+    @AfterEach
+    void tearDown() throws IOException {
+        Files.deleteIfExists(Paths.get(TEMP_FILE_PATH));
     }
 
     @Test
-    void write() {
-
-        UUID id = UUID.randomUUID();
+    @SneakyThrows
+    void writeXML_writeValidFile() {
+        UUID id = UUID.fromString("c3be8edf-3ca8-44f5-a25c-57389066c455");
 
         Employee employee = new Employee(id, "Skodin Nikita Dm",
                 LocalDate.now(), LocalDate.now());
@@ -29,11 +46,17 @@ class EmployeeWriterTest {
         OtherEmployee otherEmployee = new OtherEmployee(id, "Skodin Nikita Dm",
                 LocalDate.now(), LocalDate.now(), "de");
 
-        Manager manager = new Manager(id, "Skodin Nikita Dm",
+        Manager manager1 = new Manager(id, "Skodin Nikita Dm",
                 LocalDate.now(), LocalDate.now(), new ArrayList<>(List.of(employee, otherEmployee)));
 
+        Manager manager2 = new Manager(id, "Skodin Nikita Dm",
+                LocalDate.now(), LocalDate.now(), new ArrayList<>(List.of(employee, otherEmployee, manager1)));
 
-        employeeWriter.writeXML(employee, otherEmployee, manager);
+        employeeWriter.writeXML(TEMP_FILE_PATH, employee, otherEmployee, manager1, manager2);
 
+        String expected = Files.readString(Path.of("src/test/resources/xml/valid.xml"));
+        String result = Files.readString(Path.of(TEMP_FILE_PATH));
+
+        assertEquals(expected, result);
     }
 }

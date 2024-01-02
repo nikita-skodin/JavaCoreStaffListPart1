@@ -10,51 +10,53 @@ import org.w3c.dom.Element;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.Properties;
 
 public class EmployeeWriter {
 
-    private final DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+    private final DocumentBuilder builder;
 
-    public EmployeeWriter() throws ParserConfigurationException {
+    {
+        try {
+            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @SneakyThrows
-    public void writeXML(Employee... employees) {
+    public void writeXML(String path, Employee... employees) {
 
         Document document = builder.newDocument();
+
         Element root = document.createElement("employees");
         document.appendChild(root);
 
         write(document, List.of(employees), root);
 
-        // save
-        DOMSource dom = new DOMSource(document);
-        Transformer transformer = TransformerFactory.newInstance()
-                .newTransformer();
-        StreamResult result = new StreamResult(Files.newOutputStream(
-                Path.of("src/test/resources/test.xml"),
-                StandardOpenOption.TRUNCATE_EXISTING,
-                StandardOpenOption.WRITE));
-        transformer.transform(dom, result);
+        save(document, path);
 
     }
 
-    private void write(Document document, List<Employee> employees, Element subordinates) {
+    private void write(Document document, List<Employee> employees, Element rootElement) {
         for (Employee employee : employees) {
             if (employee instanceof Manager) {
-                writeManager((Manager) employee, document, subordinates);
+                writeManager((Manager) employee, document, rootElement);
             } else if (employee instanceof OtherEmployee) {
-                writeOtherEmployee((OtherEmployee) employee, document, subordinates);
+                writeOtherEmployee((OtherEmployee) employee, document, rootElement);
             } else if (employee != null) {
-                writeEmployee(employee, document, subordinates);
+                writeEmployee(employee, document, rootElement);
             }
         }
     }
@@ -96,6 +98,23 @@ public class EmployeeWriter {
         Element description = document.createElement("description");
         description.appendChild(document.createTextNode(otherEmployee.getDescription()));
         element.appendChild(description);
+    }
+
+    private static void save(Document document, String path) throws IOException, TransformerException {
+        document.getDocumentElement().normalize();
+        DOMSource dom = new DOMSource(document);
+        Transformer transformer = TransformerFactory.newInstance()
+                .newTransformer();
+
+        Properties outFormat = new Properties();
+        outFormat.setProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperties(outFormat);
+
+        StreamResult result = new StreamResult(Files.newOutputStream(
+                Path.of(path),
+                StandardOpenOption.TRUNCATE_EXISTING,
+                StandardOpenOption.WRITE));
+        transformer.transform(dom, result);
     }
 
 }

@@ -3,15 +3,17 @@ package util;
 import entities.Employee;
 import entities.Manager;
 import entities.OtherEmployee;
-import lombok.SneakyThrows;
+import exceptions.DamagedFileException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,17 +21,27 @@ import java.util.UUID;
 
 public class EmployeeReader {
 
-    private final DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+    private final DocumentBuilder builder;
 
-    public EmployeeReader() throws ParserConfigurationException {
+    {
+        try {
+            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-
-    @SneakyThrows
-    public List<Employee> readXML() {
+    public List<Employee> readXML(String path) {
         List<Employee> list = new ArrayList<>();
 
-        Document document = builder.parse("src/test/resources/test.xml");
+        Document document;
+
+        try {
+            document = builder.parse(path);
+        } catch (SAXException | IOException e) {
+            throw new DamagedFileException(e.getMessage());
+        }
+
         document.getDocumentElement().normalize();
 
         Element rootElement = document.getDocumentElement();
