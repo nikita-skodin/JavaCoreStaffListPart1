@@ -6,9 +6,9 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 @ToString(callSuper = true)
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OtherEmployee extends Employee{

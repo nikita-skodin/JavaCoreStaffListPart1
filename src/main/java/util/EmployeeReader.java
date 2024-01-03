@@ -4,7 +4,8 @@ import entities.Employee;
 import entities.Manager;
 import entities.OtherEmployee;
 import exceptions.DamagedFileException;
-import exceptions.InvalidTagNameException;
+import exceptions.IncorrectContentException;
+import lombok.SneakyThrows;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -15,6 +16,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,13 +36,23 @@ public class EmployeeReader {
         }
     }
 
-    public List<Employee> readXML(String path) {
+    @SneakyThrows
+    public List<Employee> readXML(Path path) {
+
+        if (!Files.exists(path)){
+            throw new NoSuchFileException(path.toString());
+        }
+
+        if (Files.size(path) == 0L){
+            return new ArrayList<>();
+        }
+
         List<Employee> list = new ArrayList<>();
 
         Document document;
 
         try {
-            document = builder.parse(path);
+            document = builder.parse(path.toFile());
         } catch (SAXException | IOException e) {
             throw new DamagedFileException(e.getMessage());
         }
@@ -50,7 +64,7 @@ public class EmployeeReader {
         try {
             read(rootElement, list);
         } catch (NullPointerException e) {
-            throw new InvalidTagNameException(e.getMessage());
+            throw new IncorrectContentException(e.getMessage());
         }
 
         return list;

@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@NoArgsConstructor()
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Manager extends Employee {
     List<Employee> subordinates;
