@@ -41,9 +41,8 @@ class EmployeeReaderTest extends MainXMLTest {
 
     @Test
     void readXML_readFromEmptyFile_returnsEmptyList() {
-        List<Employee> list = employeeReader.readXML(TEMP_FILE_PATH);
-
-        assertTrue(list.isEmpty());
+        assertThrows(IllegalArgumentException.class,
+                () -> employeeReader.readXML(TEMP_FILE_PATH));
     }
 
     @Test
@@ -75,5 +74,12 @@ class EmployeeReaderTest extends MainXMLTest {
 
         assertThrows(IncorrectContentException.class,
                 () -> employeeReader.readXML(TEMP_FILE_PATH));
+    }
+
+    @Test
+    @SneakyThrows
+    void readXML_readFromNullFile_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> employeeReader.readXML(null));
     }
 }

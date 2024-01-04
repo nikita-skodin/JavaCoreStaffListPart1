@@ -38,7 +38,7 @@ public abstract class MainXMLTest {
     /**
      * @returns a list of objects represented in a file named bigListOfEmployees.xml
      */
-    protected static List<Employee> getEmployees() {
+    protected static ArrayList<Employee> getEmployees() {
         Employee employee = new Employee(id, "Skodin Nikita Dm",
                 date, date);
 
@@ -54,7 +54,7 @@ public abstract class MainXMLTest {
         Manager manager3 = new Manager(id, "Skodin Nikita Dm",
                 date, date, new ArrayList<>(List.of(employee, otherEmployee, manager2)));
 
-        return List.of(employee, otherEmployee, manager1, manager2, manager3);
+        return new ArrayList<>(List.of(employee, otherEmployee, manager1, manager2, manager3));
     }
 
 }

@@ -39,23 +39,20 @@ public class EmployeeReader {
     @SneakyThrows
     public List<Employee> readXML(Path path) {
 
+        if (path == null){
+            throw new IllegalArgumentException("File cannot be null");        }
+
         if (!Files.exists(path)){
             throw new NoSuchFileException(path.toString());
         }
 
         if (Files.size(path) == 0L){
-            return new ArrayList<>();
+            throw new IllegalArgumentException("File cannot be empty");
         }
 
         List<Employee> list = new ArrayList<>();
 
-        Document document;
-
-        try {
-            document = builder.parse(path.toFile());
-        } catch (SAXException | IOException e) {
-            throw new DamagedFileException(e.getMessage());
-        }
+        Document document = checkIsFileDamaged(path);
 
         document.getDocumentElement().normalize();
 
@@ -111,5 +108,16 @@ public class EmployeeReader {
         }
 
         return new Manager(readEmployee(element), subordinatesList);
+    }
+
+    public Document checkIsFileDamaged(Path path) {
+        Document document;
+
+        try {
+            document = builder.parse(path.toFile());
+        } catch (SAXException | IOException e) {
+            throw new DamagedFileException(e.getMessage());
+        }
+        return document;
     }
 }
