@@ -1,4 +1,4 @@
-package tests.util;
+package tests.services;
 
 import entities.Employee;
 import entities.Manager;
@@ -10,7 +10,7 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import tests.MainXMLTest;
 import util.EmployeeReader;
-import util.EmployeeService;
+import services.EmployeeService;
 import util.EmployeeWriter;
 
 import java.nio.file.*;
@@ -305,7 +305,7 @@ class EmployeeServiceTest extends MainXMLTest {
         UUID employeeID = UUID.fromString("49486d44-a487-4d62-aac7-0171917a3386");
         Files.copy(EMPLOYEES_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
 
-        boolean isLinked = employeeService.linkEmployeeToManager(TEMP_FILE_PATH, managerID, employeeID);
+        boolean isLinked = employeeService.assignEmployeeToManager(TEMP_FILE_PATH, managerID, employeeID);
 
         List<Employee> list = employeeReader.readXML(TEMP_FILE_PATH);
 

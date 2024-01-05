@@ -1,4 +1,4 @@
-package util;
+package services;
 
 import entities.Employee;
 import entities.Manager;
@@ -6,6 +6,8 @@ import entities.OtherEmployee;
 import entities.enums.EmployeeType;
 import exceptions.InvalidTypeException;
 import lombok.SneakyThrows;
+import util.EmployeeReader;
+import util.EmployeeWriter;
 
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -19,6 +21,11 @@ public class EmployeeService {
 
     private final EmployeeReader employeeReader = new EmployeeReader();
     private final EmployeeWriter employeeWriter = new EmployeeWriter();
+
+    public List<Employee> getAllEmployees(Path source){
+        pathValidate(source);
+        return employeeReader.readXML(source);
+    }
 
     @SneakyThrows
     public void addNewEmployers(Path source, Path target) {
@@ -133,7 +140,7 @@ public class EmployeeService {
         return true;
     }
 
-    public boolean linkEmployeeToManager(Path source, UUID managerId, UUID employeeId) {
+    public boolean assignEmployeeToManager(Path source, UUID managerId, UUID employeeId) {
 
         pathValidate(source);
 
