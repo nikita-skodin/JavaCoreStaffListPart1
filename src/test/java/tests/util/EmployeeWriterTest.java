@@ -22,7 +22,7 @@ class EmployeeWriterTest extends MainXMLTest {
         Path nonExistentPath = Path.of("non/existent/path");
 
         NoSuchFileException exception = assertThrows(NoSuchFileException.class,
-                () -> employeeWriter.writeXML(nonExistentPath, List.of(employee)));
+                () -> employeeWriter.writeXML(nonExistentPath, List.of(EMPLOYEE)));
 
         assertEquals(exception.getFile(), nonExistentPath.toString());
     }
@@ -50,7 +50,12 @@ class EmployeeWriterTest extends MainXMLTest {
     @Test
     @SneakyThrows
     void writeXML_writeXMLToNormalFileWithEmptyEmployees_write() {
-        assertThrows(IllegalArgumentException.class,
-                () -> employeeWriter.writeXML(TEMP_FILE_PATH, new ArrayList<>()));
+        List<Employee> employees = new ArrayList<>();
+
+        employeeWriter.writeXML(TEMP_FILE_PATH, employees);
+
+        String actual = Files.readString(TEMP_FILE_PATH);
+
+        assertEquals(EMPTY_XML_FILE, actual);
     }
 }

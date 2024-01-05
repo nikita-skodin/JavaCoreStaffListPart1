@@ -43,7 +43,7 @@ public class EmployeeWriter {
             throw new NoSuchFileException(path.toString());
         }
 
-        if (employees == null || employees.isEmpty()){
+        if (employees == null){
             throw new IllegalArgumentException("List cannot be null or empty");
         }
 

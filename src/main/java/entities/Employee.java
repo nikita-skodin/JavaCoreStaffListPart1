@@ -8,6 +8,7 @@ import java.util.UUID;
 
 // TODO think about @Data
 
+@ToString
 @Getter
 @Setter
 @AllArgsConstructor
