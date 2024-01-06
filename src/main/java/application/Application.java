@@ -1,11 +1,10 @@
 package application;
 
+import application.enums.UserOperations;
 import lombok.extern.log4j.Log4j2;
 import services.ApplicationService;
 
 import java.util.Scanner;
-
-import static application.enums.UserOperations.*;
 
 @Log4j2
 public class Application {
@@ -14,7 +13,6 @@ public class Application {
     private final ApplicationService applicationService = new ApplicationService();
 
     public void start() {
-
         String input;
         boolean isWorking = true;
 
@@ -44,35 +42,26 @@ public class Application {
 
     private boolean doSomething(String input) {
 
-        if (LIST_OF_ALL_EMPLOYEES.equals(input)) {
-
-            applicationService.showListOfAllEmployees();
-
-        } else if (ADD_NEW_EMPLOYEE.equals(input)) {
-
-            applicationService.processAddNewEmployee();
-
-        } else if (CHANGE_EMPLOYEE_TYPE.equals(input)) {
-
-            applicationService.processChangeEmployeeType();
-
-        } else if (ASSIGN_EMPLOYEE_TO_MANAGER.equals(input)) {
-
-            applicationService.processAssignEmployeeToManager();
-
-        } else if (SORT_LIST_BY_FULL_NAMES.equals(input)) {
-
-            applicationService.processSortListByFullName();
-
-        } else if (SORT_LIST_BY_HIRING_DATES.equals(input)) {
-
-            applicationService.processSortListByHiringDate();
-
-        } else if (CLOSE_THE_APPLICATION.equals(input)) {
-            return false;
-        } else {
-            write("Нет такой операции");
+        UserOperations operation;
+        try {
+            operation = UserOperations.getValueFromString(input);
+        } catch (IllegalArgumentException e) {
+            write("данная операция отсутствует");
+            return true;
         }
+
+        switch (operation) {
+            case LIST_OF_ALL_EMPLOYEES -> applicationService.showListOfAllEmployees();
+            case ADD_NEW_EMPLOYEE -> applicationService.processAddNewEmployee();
+            case CHANGE_EMPLOYEE_TYPE -> applicationService.processChangeEmployeeType();
+            case ASSIGN_EMPLOYEE_TO_MANAGER -> applicationService.processAssignEmployeeToManager();
+            case SORT_LIST_BY_FULL_NAMES -> applicationService.processSortListByFullName();
+            case SORT_LIST_BY_HIRING_DATES -> applicationService.processSortListByHiringDate();
+            case CLOSE_THE_APPLICATION -> {
+                return false;
+            }
+        }
+
         return true;
     }
 

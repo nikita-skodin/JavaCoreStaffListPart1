@@ -3,7 +3,6 @@ package tests.util;
 import entities.Employee;
 import exceptions.DamagedFileException;
 import exceptions.IncorrectContentException;
-import exceptions.InvalidTypeException;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import tests.MainXMLTest;

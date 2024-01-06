@@ -1,6 +1,9 @@
 package entities;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
@@ -10,7 +13,6 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Manager extends Employee {
@@ -29,5 +31,27 @@ public class Manager extends Employee {
 
     public List<Employee> getSubordinates() {
         return subordinates == null ? new ArrayList<>() : subordinates;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("""
+                %s
+                subordinates :%s""",
+                super.toString(), getPrettySubordinates());
+    }
+
+    private String getPrettySubordinates(){
+
+        int counter = 1;
+
+        StringBuilder result = new StringBuilder();
+
+        for(Employee employee : getSubordinates()){
+            result.append("\n\n").append(counter).append(": ").append(employee.toString());
+            counter++;
+        }
+
+        return result.toString().replaceAll("\n", "\n\t");
     }
 }

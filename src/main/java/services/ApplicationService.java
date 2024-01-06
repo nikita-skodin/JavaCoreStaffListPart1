@@ -1,8 +1,10 @@
 package services;
 
+import entities.Employee;
 import entities.enums.EmployeeType;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -14,7 +16,7 @@ public class ApplicationService {
     private final Path PATH = Path.of("src/test/resources/xml/employees.xml");
 
     public void showListOfAllEmployees() {
-        write(employeeService.getAllEmployees(PATH).toString());
+        write(employeeService.getAllEmployees(PATH));
     }
 
     public void processAddNewEmployee() {
@@ -76,11 +78,17 @@ public class ApplicationService {
         return scan();
     }
 
+    private String scan() {
+        return scanner.nextLine();
+    }
+
     private void write(Object o) {
         System.out.println(o);
     }
 
-    private String scan() {
-        return scanner.nextLine();
+    private void write(List<Employee> list) {
+        for (Employee employee : list) {
+            System.out.println(employee.toString() + "\n");
+        }
     }
 }

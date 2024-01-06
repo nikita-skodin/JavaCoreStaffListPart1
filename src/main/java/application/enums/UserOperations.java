@@ -2,6 +2,8 @@ package application.enums;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+
 @Getter
 public enum UserOperations {
 
@@ -24,7 +26,13 @@ public enum UserOperations {
         return this.number;
     }
 
-    public boolean equals(String number){
+    public boolean equals(String number) {
         return this.number.equals(number);
+    }
+
+    public static UserOperations getValueFromString(String number) {
+        return Arrays.stream(values()).filter(o -> o.number.equals(number))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No element with such value"));
     }
 }

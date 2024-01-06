@@ -8,7 +8,6 @@ import java.util.UUID;
 
 // TODO think about @Data
 
-@ToString
 @Getter
 @Setter
 @AllArgsConstructor
@@ -19,4 +18,15 @@ public class Employee {
     String fullName;
     LocalDate birthdayDate;
     LocalDate hiringDate;
+
+    @Override
+    public String toString() {
+        return String.format("""
+                %s
+                id : %s
+                full name : %s
+                birthday date : %s
+                hiring date : %s""",
+                this.getClass().getSimpleName(), id.toString(), fullName, birthdayDate, hiringDate);
+    }
 }
