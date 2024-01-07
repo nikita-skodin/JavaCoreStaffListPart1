@@ -6,8 +6,6 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
 import java.util.UUID;
 
-// TODO think about @Data
-
 @Getter
 @Setter
 @AllArgsConstructor

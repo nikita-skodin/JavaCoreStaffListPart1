@@ -2,9 +2,11 @@ package services;
 
 import entities.Employee;
 import entities.enums.EmployeeType;
-import exceptions.*;
+import exceptions.InvalidInputDataExceptions;
 import lombok.extern.log4j.Log4j2;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Scanner;
@@ -15,6 +17,16 @@ public class ApplicationService {
     private final Scanner scanner = new Scanner(System.in);
     private final EmployeeService employeeService = new EmployeeService();
     private final Path PATH = Path.of("src/main/resources/data.xml");
+
+    {
+        if (!Files.exists(PATH)) {
+            try {
+                Files.createFile(PATH);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 
     public void showListOfAllEmployees() {
         List<Employee> employees;
@@ -38,14 +50,14 @@ public class ApplicationService {
         String source = requestDate("Enter the path to the employee file:");
 
         try {
-            employeeService.addNewEmployers(Path.of(source), PATH);
+            boolean isSuccessfully = employeeService.addNewEmployers(Path.of(source), PATH);
+            write("");
+            write("Employee has been added",
+                    "Employee is already exist",
+                    isSuccessfully);
         } catch (InvalidInputDataExceptions e) {
             write(e.getMessage());
-            return;
         }
-
-        write("");
-        showListOfAllEmployees();
     }
 
     public void processChangeEmployeeType() {
@@ -54,19 +66,23 @@ public class ApplicationService {
         String type = requestDate("""
                 Enter the new type for Employee
                 Available:
-                    MANAGER
-                    EMPLOYEE
-                    OTHER_EMPLOYEE""");
+                %s""".formatted(EmployeeType.getPretty()));
 
-        try {
-            employeeService.changeEmployeeType(PATH, id,
-                    EmployeeType.valueOf(EmployeeType.class, type));
-        } catch (InvalidInputDataExceptions e) {
-            write(e.getMessage());
-            return;
+        String description = "";
+        if (type.equals(EmployeeType.OTHER_EMPLOYEE.toString())) {
+            description = requestDate("Enter the employee description:");
         }
 
-        write("The employee type has been successfully changed");
+        try {
+            boolean isChanged = employeeService.changeEmployeeType(PATH, id,
+                    type, description);
+            write("The employee type has been successfully changed",
+                    "There is no such employee",
+                    isChanged);
+        } catch (InvalidInputDataExceptions e) {
+            write(e.getMessage());
+        }
+
     }
 
     public void processAssignEmployeeToManager() {
@@ -74,13 +90,27 @@ public class ApplicationService {
         String employeeId = requestDate("Enter the employee id:");
 
         try {
-            employeeService.assignEmployeeToManager(PATH, managerId, employeeId);
+            boolean isAssigned = employeeService.assignEmployeeToManager(PATH, managerId, employeeId);
+            write("The employee has been successfully assigned to the manager",
+                    "The employee is already assigned to the manager",
+                    isAssigned);
         } catch (InvalidInputDataExceptions e) {
             write(e.getMessage());
-            return;
+        }
+    }
+
+    public void processRemoveEmployeeById() {
+        String id = requestDate("Enter the employee id:");
+
+        try {
+            boolean isRemoved = employeeService.removeEmployerById(PATH, id);
+            write("The employee has been successfully removed",
+                    "There is no employee with such id",
+                    isRemoved);
+        } catch (InvalidInputDataExceptions e) {
+            write(e.getMessage());
         }
 
-        write("The employee has been successfully assigned to the manager");
     }
 
     public void processSortListByFullName() {
@@ -107,19 +137,6 @@ public class ApplicationService {
         showListOfAllEmployees();
     }
 
-    public void processRemoveEmployeeById() {
-        String id = requestDate("Enter the employee id:");
-
-        try {
-            employeeService.removeEmployerById(PATH, id);
-        } catch (InvalidInputDataExceptions e) {
-            write(e.getMessage());
-            return;
-        }
-
-        write("The employee has been successfully removed");
-    }
-
     private String requestDate(String message) {
         write(message);
         return scan();
@@ -136,6 +153,14 @@ public class ApplicationService {
     private void write(List<Employee> list) {
         for (Employee employee : list) {
             System.out.println(employee.toString() + "\n");
+        }
+    }
+
+    private void write(String trueMessage, String falseMessage, boolean condition) {
+        if (condition) {
+            write(trueMessage);
+        } else {
+            write(falseMessage);
         }
     }
 }

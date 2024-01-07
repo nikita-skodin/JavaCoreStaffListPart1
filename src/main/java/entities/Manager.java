@@ -18,7 +18,7 @@ import java.util.UUID;
 public class Manager extends Employee {
     List<Employee> subordinates;
 
-    // TODO get rid of the dependency on the parent object
+    //dependency on the parent object
     public Manager (Employee employee, List<Employee> subordinates){
         super(employee.getId(), employee.getFullName(), employee.getBirthdayDate(), employee.getHiringDate());
         this.subordinates = subordinates;

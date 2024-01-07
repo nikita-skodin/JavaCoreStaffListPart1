@@ -237,7 +237,7 @@ class EmployeeServiceTest extends MainXMLTest {
         Files.copy(EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
         String expected = Files.readString(MANAGER_PATH);
 
-        boolean isChanged = employeeService.changeEmployeeType(TEMP_FILE_PATH, STRING_ID, EmployeeType.MANAGER);
+        boolean isChanged = employeeService.changeEmployeeType(TEMP_FILE_PATH, STRING_ID, EmployeeType.MANAGER.toString(), "");
 
         String actual = Files.readString(TEMP_FILE_PATH);
 
@@ -251,7 +251,7 @@ class EmployeeServiceTest extends MainXMLTest {
         Files.copy(MANAGER_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
         String expected = Files.readString(OTHER_EMPLOYEE_PATH);
 
-        boolean isChanged = employeeService.changeEmployeeType(TEMP_FILE_PATH, STRING_ID, EmployeeType.OTHER_EMPLOYEE);
+        boolean isChanged = employeeService.changeEmployeeType(TEMP_FILE_PATH, STRING_ID, EmployeeType.OTHER_EMPLOYEE.toString(), "des");
 
         String actual = Files.readString(TEMP_FILE_PATH);
 
@@ -265,7 +265,7 @@ class EmployeeServiceTest extends MainXMLTest {
         Files.copy(OTHER_EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
         String expected = Files.readString(EMPLOYEE_PATH);
 
-        boolean isChanged = employeeService.changeEmployeeType(TEMP_FILE_PATH, STRING_ID, EmployeeType.EMPLOYEE);
+        boolean isChanged = employeeService.changeEmployeeType(TEMP_FILE_PATH, STRING_ID, EmployeeType.EMPLOYEE.toString(), "");
 
         String actual = Files.readString(TEMP_FILE_PATH);
 
@@ -279,7 +279,7 @@ class EmployeeServiceTest extends MainXMLTest {
         Files.copy(EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
 
         assertThrows(InvalidTypeException.class,
-                () -> employeeService.changeEmployeeType(TEMP_FILE_PATH, STRING_ID, EmployeeType.EMPLOYEE));
+                () -> employeeService.changeEmployeeType(TEMP_FILE_PATH, STRING_ID, EmployeeType.EMPLOYEE.toString(), ""));
 
     }
 
@@ -289,7 +289,7 @@ class EmployeeServiceTest extends MainXMLTest {
         Files.copy(OTHER_EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
         String expected = Files.readString(EMPLOYEE_PATH);
 
-        boolean isChanged = employeeService.changeEmployeeType(TEMP_FILE_PATH, UUID.randomUUID().toString(), EmployeeType.EMPLOYEE);
+        boolean isChanged = employeeService.changeEmployeeType(TEMP_FILE_PATH, UUID.randomUUID().toString(), EmployeeType.EMPLOYEE.toString(), "");
 
         String actual = Files.readString(EMPLOYEE_PATH);
 

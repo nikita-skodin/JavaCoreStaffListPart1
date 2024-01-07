@@ -27,7 +27,7 @@ public class Application {
 
     private String getMainMenuText() {
         return """
-
+                
                 Main Menu
 
                 1 - List of all employees

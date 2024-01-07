@@ -2,8 +2,19 @@ package entities.enums;
 
 public enum EmployeeType {
 
-    EMPLOYEE,
     MANAGER,
-    OTHER_EMPLOYEE
+    EMPLOYEE,
+    OTHER_EMPLOYEE;
+
+    public static String getPretty(){
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (EmployeeType type : values()){
+            stringBuilder.append("\t").append(type).append("\n");
+        }
+
+        return stringBuilder.toString();
+    }
 
 }

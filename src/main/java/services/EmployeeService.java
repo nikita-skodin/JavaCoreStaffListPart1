@@ -44,7 +44,7 @@ public class EmployeeService {
      * @throws IncorrectContentException if at least one file has incorrect tag
      */
     @SneakyThrows
-    public void addNewEmployers(Path source, Path target) {
+    public boolean addNewEmployers(Path source, Path target) {
 
         List<Employee> sourceList = employeeReader.readXML(source);
 
@@ -62,14 +62,21 @@ public class EmployeeService {
 
         List<Employee> targetList = employeeReader.readXML(target);
 
+        for (Employee employee : sourceList) {
+            if (targetList.contains(employee)) {
+                return false;
+            }
+        }
+
         targetList.addAll(sourceList);
 
         employeeWriter.writeXML(target, targetList);
+        return true;
     }
 
 
     /**
-     * @throws InvalidIdException  if id is not valid
+     * @throws InvalidIdException        if id is not valid
      * @throws PathIsNullException       if path is null
      * @throws FileNotFoundException     if file not found
      * @throws FileIsEmptyException      if file is empty
@@ -130,7 +137,14 @@ public class EmployeeService {
      * @throws IncorrectContentException if file has incorrect tag
      * @throws InvalidTypeException      if employeeById type is already employeeType
      */
-    public boolean changeEmployeeType(Path source, String id, EmployeeType employeeType) {
+    public boolean changeEmployeeType(Path source, String id, String type, String description) {
+
+        EmployeeType employeeType;
+        try {
+            employeeType = EmployeeType.valueOf(type.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidInputDataExceptions("No such type of employee");
+        }
 
         UUID uuid = getUUIDFromStringOrThrowException(id);
 
@@ -163,10 +177,9 @@ public class EmployeeService {
                 if (employee.getClass().equals(OtherEmployee.class)) {
                     throw new InvalidTypeException("Employee type is already OtherEmployee");
                 }
-                // TODO change description
                 sourceList.remove(employee);
                 sourceList.add(new OtherEmployee(
-                        employee, "DESCRIPTION"
+                        employee, description
                 ));
             }
             case MANAGER -> {
@@ -189,7 +202,7 @@ public class EmployeeService {
      * @throws FileIsEmptyException      if file is empty
      * @throws DamagedFileException      if file is not .xml or damaged
      * @throws IncorrectContentException if file has incorrect tag
-     * @throws InvalidIdException  if employee with such id is not found
+     * @throws InvalidIdException        if employee with such id is not found
      * @throws InvalidTypeException      if id is invalid or managerById type is not a manager
      */
     public boolean assignEmployeeToManager(Path source, String managerId, String employeeId) {
@@ -210,7 +223,12 @@ public class EmployeeService {
             throw new InvalidTypeException("Employee type is not a manager");
         }
 
-        ((Manager) manager).getSubordinates().add(employee);
+        List<Employee> subordinates = ((Manager) manager).getSubordinates();
+
+        if (subordinates.contains(employee)) {
+            return false;
+        }
+        subordinates.add(employee);
 
         employeeWriter.writeXML(source, list);
 

@@ -16,7 +16,7 @@ import java.util.UUID;
 public class OtherEmployee extends Employee{
     String description;
 
-    // TODO get rid of the dependency on the parent object
+    //dependency on the parent object
     public OtherEmployee (Employee employee, String description){
         super(employee.getId(), employee.getFullName(), employee.getBirthdayDate(), employee.getHiringDate());
         this.description = description;
