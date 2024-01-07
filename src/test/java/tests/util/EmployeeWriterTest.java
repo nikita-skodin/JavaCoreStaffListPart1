@@ -58,4 +58,18 @@ class EmployeeWriterTest extends MainXMLTest {
 
         assertEquals(EMPTY_XML_FILE, actual);
     }
+
+    @Test
+    @SneakyThrows
+    void writeXML_NotEmptyList_rewritesFile(){
+
+        Files.writeString(TEMP_FILE_PATH, "DAMAGE IT");
+
+        employeeWriter.writeXML(TEMP_FILE_PATH, getEmployees());
+
+        String expected = Files.readString(BIG_LIST_OF_EMPLOYEES_PATH);
+        String actual = Files.readString(TEMP_FILE_PATH);
+
+        assertEquals(expected, actual);
+    }
 }

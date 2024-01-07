@@ -4,13 +4,12 @@ import entities.Employee;
 import entities.Manager;
 import entities.OtherEmployee;
 import entities.enums.EmployeeType;
-import exceptions.InvalidTypeException;
+import exceptions.*;
 import lombok.SneakyThrows;
 import util.EmployeeReader;
 import util.EmployeeWriter;
 
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -22,17 +21,30 @@ public class EmployeeService {
     private final EmployeeReader employeeReader = new EmployeeReader();
     private final EmployeeWriter employeeWriter = new EmployeeWriter();
 
-    public List<Employee> getAllEmployees(Path source){
-        pathValidate(source);
-        return employeeReader.readXML(source);
+    /**
+     * @throws PathIsNullException       if path is null
+     * @throws FileNotFoundException     if file not found
+     * @throws DamagedFileException      if file is not .xml or damaged
+     * @throws IncorrectContentException if file has incorrect tag
+     */
+    @SneakyThrows
+    public List<Employee> getAllEmployees(Path source) {
+        try {
+            return employeeReader.readXML(source);
+        } catch (FileIsEmptyException e) {
+            return new ArrayList<>();
+        }
     }
 
+    /**
+     * @throws PathIsNullException       if at least one path is null
+     * @throws FileNotFoundException     if at least one file not found
+     * @throws FileIsEmptyException      if source file is empty
+     * @throws DamagedFileException      if at least one file is not .xml or damaged
+     * @throws IncorrectContentException if at least one file has incorrect tag
+     */
     @SneakyThrows
     public void addNewEmployers(Path source, Path target) {
-
-        if (target == null) {
-            throw new IllegalArgumentException("target file cannot be null");
-        }
 
         List<Employee> sourceList = employeeReader.readXML(source);
 
@@ -55,9 +67,25 @@ public class EmployeeService {
         employeeWriter.writeXML(target, targetList);
     }
 
-    public boolean removeEmployerById(Path source, UUID uuid) {
 
-        pathValidate(source);
+    /**
+     * @throws IllegalArgumentException  if id is not valid
+     * @throws PathIsNullException       if path is null
+     * @throws FileNotFoundException     if file not found
+     * @throws FileIsEmptyException      if file is empty
+     * @throws DamagedFileException      if file is not .xml or damaged
+     * @throws IncorrectContentException if file has incorrect tag
+     */
+    public boolean removeEmployerById(Path source, String id) {
+
+        UUID uuid;
+        try {
+            uuid = UUID.fromString(id);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Id is not valid");
+        }
+
+        employeeReader.pathValidate(source);
 
         List<Employee> sourceList = employeeReader.readXML(source);
 
@@ -72,9 +100,17 @@ public class EmployeeService {
         return true;
     }
 
+
+    /**
+     * @throws PathIsNullException       if path is null
+     * @throws FileNotFoundException     if file not found
+     * @throws FileIsEmptyException      if file is empty
+     * @throws DamagedFileException      if file is not .xml or damaged
+     * @throws IncorrectContentException if file has incorrect tag
+     */
     public boolean removeEmployerByFullName(Path source, String fullName) {
 
-        pathValidate(source);
+        employeeReader.pathValidate(source);
 
         List<Employee> sourceList = employeeReader.readXML(source);
 
@@ -89,10 +125,26 @@ public class EmployeeService {
         return true;
     }
 
-    // удаляешь старого и получаешь его, на основе его создаешь нового и добавляешь в список
-    public boolean changeEmployeeType(Path source, UUID uuid, EmployeeType employeeType) {
 
-        pathValidate(source);
+    /**
+     * @throws IllegalArgumentException  if id is not valid
+     * @throws PathIsNullException       if path is null
+     * @throws FileNotFoundException     if file not found
+     * @throws FileIsEmptyException      if file is empty
+     * @throws DamagedFileException      if file is not .xml or damaged
+     * @throws IncorrectContentException if file has incorrect tag
+     * @throws InvalidTypeException      if employeeById type is already employeeType
+     */
+    public boolean changeEmployeeType(Path source, String id, EmployeeType employeeType) {
+
+        UUID uuid;
+        try {
+            uuid = UUID.fromString(id);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Id is not valid");
+        }
+
+        employeeReader.pathValidate(source);
 
         List<Employee> sourceList = employeeReader.readXML(source);
 
@@ -140,18 +192,38 @@ public class EmployeeService {
         return true;
     }
 
-    public boolean assignEmployeeToManager(Path source, UUID managerId, UUID employeeId) {
 
-        pathValidate(source);
+    /**
+     * @throws PathIsNullException       if path is null
+     * @throws FileNotFoundException     if file not found
+     * @throws FileIsEmptyException      if file is empty
+     * @throws DamagedFileException      if file is not .xml or damaged
+     * @throws IncorrectContentException if file has incorrect tag
+     * @throws IllegalArgumentException  if employee with such id is not found
+     * @throws InvalidTypeException      if id is invalid or managerById type is not a manager
+     */
+    public boolean assignEmployeeToManager(Path source, String managerId, String employeeId) {
+
+        // TODO extract it
+        UUID managerUUIDId;
+        UUID employeeUUIDId;
+        try {
+            managerUUIDId = UUID.fromString(managerId);
+            employeeUUIDId = UUID.fromString(employeeId);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidTypeException("Id is not valid");
+        }
+
+        employeeReader.pathValidate(source);
 
         List<Employee> list = employeeReader.readXML(source);
 
-        Employee manager = list.stream().filter(e -> e.getId().equals(managerId))
-                .findFirst().orElseThrow(() -> new IllegalArgumentException("the manager does not exist"));
-        Employee employee = list.stream().filter(e -> e.getId().equals(employeeId))
-                .findFirst().orElseThrow(() -> new IllegalArgumentException("the employee does not exist"));
+        Employee manager = list.stream().filter(e -> e.getId().equals(managerUUIDId))
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("The manager does not exist"));
+        Employee employee = list.stream().filter(e -> e.getId().equals(employeeUUIDId))
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("The employee does not exist"));
 
-        if (!manager.getClass().equals(Manager.class)){
+        if (!manager.getClass().equals(Manager.class)) {
             throw new InvalidTypeException("Employee type is not a manager");
         }
 
@@ -162,38 +234,33 @@ public class EmployeeService {
         return true;
     }
 
+
+    /**
+     * @throws PathIsNullException       if path is null
+     * @throws FileNotFoundException     if file not found
+     * @throws FileIsEmptyException      if file is empty
+     * @throws DamagedFileException      if file is not .xml or damaged
+     * @throws IncorrectContentException if file has incorrect tag
+     */
     public void sortByFullName(Path source) {
-        pathValidate(source);
+        employeeReader.pathValidate(source);
         List<Employee> sourceList = employeeReader.readXML(source);
         sourceList.sort(Comparator.comparing(Employee::getFullName));
         employeeWriter.writeXML(source, sourceList);
     }
 
+    /**
+     * @throws PathIsNullException       if path is null
+     * @throws FileNotFoundException     if file not found
+     * @throws FileIsEmptyException      if file is empty
+     * @throws DamagedFileException      if file is not .xml or damaged
+     * @throws IncorrectContentException if file has incorrect tag
+     */
     public void sortByHiringDate(Path source) {
-        pathValidate(source);
+        employeeReader.pathValidate(source);
         List<Employee> sourceList = employeeReader.readXML(source);
         sourceList.sort(Comparator.comparing(Employee::getHiringDate));
         employeeWriter.writeXML(source, sourceList);
-    }
-
-    // public for tests
-    @SneakyThrows
-    public void pathValidate(Path path) {
-
-        if (path == null) {
-            throw new IllegalArgumentException("path cannot be null");
-        }
-
-        if (!Files.exists(path)) {
-            throw new NoSuchFileException(path.toString());
-        }
-
-        if (Files.size(path) == 0L) {
-            throw new IllegalArgumentException("File cannot be null");
-        }
-
-        employeeReader.checkIsFileDamaged(path);
-
     }
 
 }

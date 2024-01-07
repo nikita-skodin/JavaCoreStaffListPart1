@@ -13,7 +13,8 @@ public enum UserOperations {
     ASSIGN_EMPLOYEE_TO_MANAGER("4"),
     SORT_LIST_BY_FULL_NAMES("5"),
     SORT_LIST_BY_HIRING_DATES("6"),
-    CLOSE_THE_APPLICATION("7");
+    REMOVE_EMPLOYEE_BY_ID("7"),
+    CLOSE_THE_APPLICATION("8");
 
     private final String number;
 

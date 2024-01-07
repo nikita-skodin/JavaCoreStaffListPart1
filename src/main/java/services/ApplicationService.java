@@ -2,75 +2,171 @@ package services;
 
 import entities.Employee;
 import entities.enums.EmployeeType;
+import exceptions.*;
+import lombok.extern.log4j.Log4j2;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
 
+@Log4j2
 public class ApplicationService {
 
     private final Scanner scanner = new Scanner(System.in);
     private final EmployeeService employeeService = new EmployeeService();
-
-    private final Path PATH = Path.of("src/test/resources/xml/employees.xml");
+    private final Path PATH = Path.of("src/main/resources/data.xml");
 
     public void showListOfAllEmployees() {
-        write(employeeService.getAllEmployees(PATH));
+        List<Employee> employees;
+
+        try {
+            employees = employeeService.getAllEmployees(PATH);
+        } catch (IncorrectContentException | DamagedFileException e) {
+            write("File with list is damaged");
+            return;
+        } catch (PathIsNullException | FileNotFoundException e) {
+            write("File is not found");
+            return;
+        }
+
+        if (employees.isEmpty()) {
+            write("List is empty");
+            return;
+        }
+
+        write(employees);
     }
 
     public void processAddNewEmployee() {
-        String source = requestDate("Введите путь до файла с сотрудниками");
+        String source = requestDate("Enter the path to the employee file:");
 
-        String target = requestDate("Введите путь до файла с сотрудника (target)");
-
-        employeeService.addNewEmployers(Path.of(source), Path.of(target));
+        try {
+            employeeService.addNewEmployers(Path.of(source), PATH);
+        } catch (PathIsNullException | FileNotFoundException e) {
+            write("File is not found");
+            return;
+        } catch (FileIsEmptyException e) {
+            write("File is empty");
+            return;
+        } catch (IncorrectContentException | DamagedFileException e) {
+            write("File with list is damaged");
+            return;
+        }
 
         write("");
         showListOfAllEmployees();
     }
 
     public void processChangeEmployeeType() {
-        String source = requestDate("Введите путь до файла с сотрудниками");
 
-        String id = requestDate("Введите id целевого сотрудника (target)");
+        String id = requestDate("Enter the employee id:");
+        String type = requestDate("""
+                Enter the new type for Employee
+                Available:
+                    MANAGER
+                    EMPLOYEE
+                    OTHER_EMPLOYEE""");
 
-        String type = requestDate("Введите новый тип целевого сотрудника (target)");
+        try {
+            employeeService.changeEmployeeType(PATH, id,
+                    EmployeeType.valueOf(EmployeeType.class, type));
+        } catch (PathIsNullException | FileNotFoundException e) {
+            write("File is not found");
+            return;
+        } catch (FileIsEmptyException e) {
+            write("File is empty");
+            return;
+        } catch (IncorrectContentException | DamagedFileException e) {
+            write("File with list is damaged");
+            return;
+        } catch (InvalidTypeException e) {
+            write("Employee with such id is already has one type");
+            return;
+        }
 
-        employeeService.changeEmployeeType(Path.of(source), UUID.fromString(id),
-                EmployeeType.valueOf(EmployeeType.class, type));
-
-        write("Тип сотрудника успешно изменен");
+        write("The employee type has been successfully changed");
     }
 
     public void processAssignEmployeeToManager() {
-        String source = requestDate("Введите путь до файла с сотрудниками");
+        String managerId = requestDate("Enter the manager id:");
+        String employeeId = requestDate("Enter the employee id:");
 
-        String managerId = requestDate("Введите id менеджера");
+        try {
+            employeeService.assignEmployeeToManager(PATH, managerId, employeeId);
+        } catch (PathIsNullException | FileNotFoundException e) {
+            write("File is not found");
+            return;
+        } catch (FileIsEmptyException e) {
+            write("File is empty");
+            return;
+        } catch (IncorrectContentException | DamagedFileException e) {
+            write("File with list is damaged");
+            return;
+        } catch (InvalidTypeException e) {
+            write("Employee with such id is not a Manager");
+            return;
+        }
 
-        String employeeId = requestDate("Введите id сотрудника");
-
-        employeeService.assignEmployeeToManager(Path.of(source), UUID.fromString(managerId), UUID.fromString(employeeId));
-
-        write("операция выполнена успешно");
+        write("The employee has been successfully assigned to the manager");
     }
 
     public void processSortListByFullName() {
-        String source = requestDate("Введите путь до файла с сотрудниками");
-
-        employeeService.sortByFullName(Path.of(source));
+        try {
+            employeeService.sortByFullName(PATH);
+        } catch (PathIsNullException | FileNotFoundException e) {
+            write("File is not found");
+            return;
+        } catch (FileIsEmptyException e) {
+            write("File is empty");
+            return;
+        } catch (IncorrectContentException | DamagedFileException e) {
+            write("File with list is damaged");
+            return;
+        }
 
         write("");
         showListOfAllEmployees();
     }
 
     public void processSortListByHiringDate() {
-        String source = requestDate("Введите путь до файла с сотрудниками");
-
-        employeeService.sortByHiringDate(Path.of(source));
+        try {
+            employeeService.sortByHiringDate(PATH);
+        } catch (PathIsNullException | FileNotFoundException e) {
+            write("File is not found");
+            return;
+        } catch (FileIsEmptyException e) {
+            write("File is empty");
+            return;
+        } catch (IncorrectContentException | DamagedFileException e) {
+            write("File with list is damaged");
+            return;
+        }
 
         write("");
         showListOfAllEmployees();
+    }
+
+    public void processRemoveEmployeeById() {
+        String id = requestDate("Enter the employee id:");
+
+        try {
+            employeeService.removeEmployerById(PATH, id);
+        } catch (PathIsNullException | FileNotFoundException e) {
+            write("File is not found");
+            return;
+        } catch (FileIsEmptyException e) {
+            write("File is empty");
+            return;
+        } catch (IncorrectContentException | DamagedFileException e) {
+            write("File with list is damaged");
+            return;
+        } catch (IllegalArgumentException e) {
+            write("Id is not valid");
+            return;
+        }
+
+        write("The employee has been successfully removed");
     }
 
     private String requestDate(String message) {

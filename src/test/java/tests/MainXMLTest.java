@@ -28,6 +28,7 @@ public abstract class MainXMLTest {
             <employees/>
             """;
     protected static final UUID ID = UUID.fromString("c3be8edf-3ca8-44f5-a25c-57389066c455");
+    protected static final String STRING_ID = "c3be8edf-3ca8-44f5-a25c-57389066c455";
     protected static final LocalDate DATE = LocalDate.parse("2024-01-02");
     protected static final Employee EMPLOYEE = new Employee(ID, "Skodin Nikita Dm", DATE, DATE);
 

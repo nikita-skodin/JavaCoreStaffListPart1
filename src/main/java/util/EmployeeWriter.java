@@ -3,6 +3,7 @@ package util;
 import entities.Employee;
 import entities.Manager;
 import entities.OtherEmployee;
+import exceptions.*;
 import lombok.SneakyThrows;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -18,7 +19,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
@@ -36,15 +36,27 @@ public class EmployeeWriter {
         }
     }
 
+    /**
+     * @throws PathIsNullException       if path is null
+     * @throws FileNotFoundException     if file not found
+     * @throws FileIsEmptyException      if file is empty
+     * @throws DamagedFileException      if file is not .xml or damaged
+     * @throws IncorrectContentException if file has incorrect tag
+     * @throws NullPointerException      if list is null
+     */
     @SneakyThrows
     public void writeXML(Path path, List<Employee> employees) {
 
-        if (!Files.exists(path)){
-            throw new NoSuchFileException(path.toString());
+        if (path == null) {
+            throw new PathIsNullException("Path cannot be null");
         }
 
-        if (employees == null){
-            throw new IllegalArgumentException("List cannot be null or empty");
+        if (!Files.exists(path)) {
+            throw new FileNotFoundException("File %s is not exist".formatted(path));
+        }
+
+        if (employees == null) {
+            throw new NullPointerException("List cannot be null");
         }
 
         Document document = builder.newDocument();
@@ -55,7 +67,6 @@ public class EmployeeWriter {
         write(document, employees, root);
 
         save(document, path);
-
     }
 
     private void write(Document document, List<Employee> employees, Element rootElement) {

@@ -27,16 +27,17 @@ public class Application {
 
     private String getMainMenuText() {
         return """
-                                
-                Главное меню
-                                
-                1 - Список всех сотрудников
-                2 - Добавить сотрудника
-                3 - Изменить тип сотрудника
-                4 - Привязать сотрудника к менеджеру
-                5 - Сортировать список по фамилиям
-                6 - Сортировать список по датам принятия на работу
-                7 - Закрыть приложение
+
+                Main Menu
+
+                1 - List of all employees
+                2 - Add new employee
+                3 - Change the type of employee
+                4 - Assign an employee to a manager
+                5 - Sort the list by full name
+                6 - Sort the list by employment dates
+                7 - Delete an employee by id
+                8 - Close the application
                 """;
     }
 
@@ -46,7 +47,7 @@ public class Application {
         try {
             operation = UserOperations.getValueFromString(input);
         } catch (IllegalArgumentException e) {
-            write("данная операция отсутствует");
+            write("No such operation");
             return true;
         }
 
@@ -57,7 +58,9 @@ public class Application {
             case ASSIGN_EMPLOYEE_TO_MANAGER -> applicationService.processAssignEmployeeToManager();
             case SORT_LIST_BY_FULL_NAMES -> applicationService.processSortListByFullName();
             case SORT_LIST_BY_HIRING_DATES -> applicationService.processSortListByHiringDate();
+            case REMOVE_EMPLOYEE_BY_ID -> applicationService.processRemoveEmployeeById();
             case CLOSE_THE_APPLICATION -> {
+                write("Exit");
                 return false;
             }
         }

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<employees>
+    <manager id="c3be8edf-3ca8-44f5-a25c-57389066c455">
+        <fullName>Skodin Nikita Dm</fullName>
+        <birthdayDate>2024-01-02</birthdayDate>
+        <hiringDate>2024-01-02</hiringDate>
+        <subordinates/>
+    </manager>
+</employees>

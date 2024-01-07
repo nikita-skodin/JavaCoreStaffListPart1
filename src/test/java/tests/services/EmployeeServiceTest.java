@@ -184,7 +184,7 @@ class EmployeeServiceTest extends MainXMLTest {
     void removeEmployerById_listHasEmployeeWithSuchId_removeEmployeeWithId() {
         Files.copy(EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
 
-        boolean removed = employeeService.removeEmployerById(TEMP_FILE_PATH, ID);
+        boolean removed = employeeService.removeEmployerById(TEMP_FILE_PATH, ID.toString());
         String readString = Files.readString(TEMP_FILE_PATH);
 
         assertTrue(removed);
@@ -197,7 +197,7 @@ class EmployeeServiceTest extends MainXMLTest {
         Files.copy(EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
         String expected = Files.readString(EMPLOYEE_PATH);
 
-        boolean removed = employeeService.removeEmployerById(TEMP_FILE_PATH, UUID.randomUUID());
+        boolean removed = employeeService.removeEmployerById(TEMP_FILE_PATH, UUID.randomUUID().toString());
 
         String readString = Files.readString(TEMP_FILE_PATH);
 
@@ -237,7 +237,7 @@ class EmployeeServiceTest extends MainXMLTest {
         Files.copy(EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
         String expected = Files.readString(MANAGER_PATH);
 
-        boolean isChanged = employeeService.changeEmployeeType(TEMP_FILE_PATH, ID, EmployeeType.MANAGER);
+        boolean isChanged = employeeService.changeEmployeeType(TEMP_FILE_PATH, STRING_ID, EmployeeType.MANAGER);
 
         String actual = Files.readString(TEMP_FILE_PATH);
 
@@ -251,7 +251,7 @@ class EmployeeServiceTest extends MainXMLTest {
         Files.copy(MANAGER_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
         String expected = Files.readString(OTHER_EMPLOYEE_PATH);
 
-        boolean isChanged = employeeService.changeEmployeeType(TEMP_FILE_PATH, ID, EmployeeType.OTHER_EMPLOYEE);
+        boolean isChanged = employeeService.changeEmployeeType(TEMP_FILE_PATH, STRING_ID, EmployeeType.OTHER_EMPLOYEE);
 
         String actual = Files.readString(TEMP_FILE_PATH);
 
@@ -265,7 +265,7 @@ class EmployeeServiceTest extends MainXMLTest {
         Files.copy(OTHER_EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
         String expected = Files.readString(EMPLOYEE_PATH);
 
-        boolean isChanged = employeeService.changeEmployeeType(TEMP_FILE_PATH, ID, EmployeeType.EMPLOYEE);
+        boolean isChanged = employeeService.changeEmployeeType(TEMP_FILE_PATH, STRING_ID, EmployeeType.EMPLOYEE);
 
         String actual = Files.readString(TEMP_FILE_PATH);
 
@@ -279,7 +279,7 @@ class EmployeeServiceTest extends MainXMLTest {
         Files.copy(EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
 
         assertThrows(InvalidTypeException.class,
-                () -> employeeService.changeEmployeeType(TEMP_FILE_PATH, ID, EmployeeType.EMPLOYEE));
+                () -> employeeService.changeEmployeeType(TEMP_FILE_PATH, STRING_ID, EmployeeType.EMPLOYEE));
 
     }
 
@@ -289,7 +289,7 @@ class EmployeeServiceTest extends MainXMLTest {
         Files.copy(OTHER_EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
         String expected = Files.readString(EMPLOYEE_PATH);
 
-        boolean isChanged = employeeService.changeEmployeeType(TEMP_FILE_PATH, UUID.randomUUID(), EmployeeType.EMPLOYEE);
+        boolean isChanged = employeeService.changeEmployeeType(TEMP_FILE_PATH, UUID.randomUUID().toString(), EmployeeType.EMPLOYEE);
 
         String actual = Files.readString(EMPLOYEE_PATH);
 
@@ -301,20 +301,25 @@ class EmployeeServiceTest extends MainXMLTest {
     @Test
     @SneakyThrows
     void linkEmployeeToManager() {
-        UUID managerID = UUID.fromString("dd82a20d-a11f-4610-86a1-c8bfc585eb79");
-        UUID employeeID = UUID.fromString("49486d44-a487-4d62-aac7-0171917a3386");
+
+        String managerStringId = "dd82a20d-a11f-4610-86a1-c8bfc585eb79";
+        String employeeStringId = "49486d44-a487-4d62-aac7-0171917a3386";
+
+        UUID managerUuidId = UUID.fromString(managerStringId);
+        UUID employeeUuidId = UUID.fromString(employeeStringId);
+
         Files.copy(EMPLOYEES_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
 
-        boolean isLinked = employeeService.assignEmployeeToManager(TEMP_FILE_PATH, managerID, employeeID);
+        boolean isLinked = employeeService.assignEmployeeToManager(TEMP_FILE_PATH, managerStringId, employeeStringId);
 
         List<Employee> list = employeeReader.readXML(TEMP_FILE_PATH);
 
-        Employee employee = list.stream().filter(e -> e.getId().equals(managerID)).findFirst().orElse(null);
+        Employee employee = list.stream().filter(e -> e.getId().equals(managerUuidId)).findFirst().orElse(null);
 
         Employee employee1 = null;
         if (employee != null && employee.getClass().equals(Manager.class)) {
             employee1 = ((Manager) employee).getSubordinates().stream()
-                    .filter(e -> e.getId().equals(employeeID)).findFirst().orElse(null);
+                    .filter(e -> e.getId().equals(employeeUuidId)).findFirst().orElse(null);
         }
 
         assertNotNull(employee1);
@@ -347,36 +352,5 @@ class EmployeeServiceTest extends MainXMLTest {
         expected.sort(Comparator.comparing(Employee::getHiringDate));
 
         assertEquals(expected, actual);
-    }
-
-    @Test
-    void pathValidate_throwsExceptionIfFileDoesNotExist_throwsNoSuchFileException() {
-        Path nonExistentFile = Path.of("non/existent/path");
-        assertThrows(NoSuchFileException.class,
-                () -> employeeService.pathValidate(nonExistentFile));
-    }
-
-    @Test
-    void pathValidate_throwsExceptionIfFileIsEmpty_throwsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class,
-                () -> employeeService.pathValidate(TEMP_FILE_PATH));
-    }
-
-    @Test
-    @SneakyThrows
-    void pathValidate_throwsExceptionIfFileIsDamaged_throwsDamagedFileException() {
-        Files.copy(EMPLOYEES_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
-
-        Files.writeString(TEMP_FILE_PATH, "invalid text", StandardOpenOption.APPEND);
-
-        assertThrows(DamagedFileException.class,
-                () -> employeeService.pathValidate(TEMP_FILE_PATH));
-    }
-
-    @Test
-    @SneakyThrows
-    void pathValidate_throwsExceptionIfPathToFileIsNull_throwsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class,
-                () -> employeeService.pathValidate(null));
     }
 }

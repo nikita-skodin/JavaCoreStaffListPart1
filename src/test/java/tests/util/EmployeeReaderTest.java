@@ -8,10 +8,7 @@ import org.junit.jupiter.api.Test;
 import tests.MainXMLTest;
 import util.EmployeeReader;
 
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -80,5 +77,36 @@ class EmployeeReaderTest extends MainXMLTest {
     void readXML_readFromNullFile_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class,
                 () -> employeeReader.readXML(null));
+    }
+
+    @Test
+    void pathValidate_throwsExceptionIfFileDoesNotExist_throwsNoSuchFileException() {
+        Path nonExistentFile = Path.of("non/existent/path");
+        assertThrows(NoSuchFileException.class,
+                () -> employeeReader.pathValidate(nonExistentFile));
+    }
+
+    @Test
+    void pathValidate_throwsExceptionIfFileIsEmpty_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> employeeReader.pathValidate(TEMP_FILE_PATH));
+    }
+
+    @Test
+    @SneakyThrows
+    void pathValidate_throwsExceptionIfFileIsDamaged_throwsDamagedFileException() {
+        Files.copy(EMPLOYEES_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
+
+        Files.writeString(TEMP_FILE_PATH, "invalid text", StandardOpenOption.APPEND);
+
+        assertThrows(DamagedFileException.class,
+                () -> employeeReader.pathValidate(TEMP_FILE_PATH));
+    }
+
+    @Test
+    @SneakyThrows
+    void pathValidate_throwsExceptionIfPathToFileIsNull_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> employeeReader.pathValidate(null));
     }
 }
