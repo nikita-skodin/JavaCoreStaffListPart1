@@ -69,7 +69,7 @@ public class EmployeeService {
 
 
     /**
-     * @throws IllegalArgumentException  if id is not valid
+     * @throws InvalidIdException  if id is not valid
      * @throws PathIsNullException       if path is null
      * @throws FileNotFoundException     if file not found
      * @throws FileIsEmptyException      if file is empty
@@ -78,12 +78,7 @@ public class EmployeeService {
      */
     public boolean removeEmployerById(Path source, String id) {
 
-        UUID uuid;
-        try {
-            uuid = UUID.fromString(id);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Id is not valid");
-        }
+        UUID uuid = getUUIDFromStringOrThrowException(id);
 
         employeeReader.pathValidate(source);
 
@@ -127,7 +122,7 @@ public class EmployeeService {
 
 
     /**
-     * @throws IllegalArgumentException  if id is not valid
+     * @throws InvalidIdException        if id is not valid
      * @throws PathIsNullException       if path is null
      * @throws FileNotFoundException     if file not found
      * @throws FileIsEmptyException      if file is empty
@@ -137,12 +132,7 @@ public class EmployeeService {
      */
     public boolean changeEmployeeType(Path source, String id, EmployeeType employeeType) {
 
-        UUID uuid;
-        try {
-            uuid = UUID.fromString(id);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Id is not valid");
-        }
+        UUID uuid = getUUIDFromStringOrThrowException(id);
 
         employeeReader.pathValidate(source);
 
@@ -199,29 +189,22 @@ public class EmployeeService {
      * @throws FileIsEmptyException      if file is empty
      * @throws DamagedFileException      if file is not .xml or damaged
      * @throws IncorrectContentException if file has incorrect tag
-     * @throws IllegalArgumentException  if employee with such id is not found
+     * @throws InvalidIdException  if employee with such id is not found
      * @throws InvalidTypeException      if id is invalid or managerById type is not a manager
      */
     public boolean assignEmployeeToManager(Path source, String managerId, String employeeId) {
 
-        // TODO extract it
-        UUID managerUUIDId;
-        UUID employeeUUIDId;
-        try {
-            managerUUIDId = UUID.fromString(managerId);
-            employeeUUIDId = UUID.fromString(employeeId);
-        } catch (IllegalArgumentException e) {
-            throw new InvalidTypeException("Id is not valid");
-        }
+        UUID managerUUIDId = getUUIDFromStringOrThrowException(managerId);
+        UUID employeeUUIDId = getUUIDFromStringOrThrowException(employeeId);
 
         employeeReader.pathValidate(source);
 
         List<Employee> list = employeeReader.readXML(source);
 
         Employee manager = list.stream().filter(e -> e.getId().equals(managerUUIDId))
-                .findFirst().orElseThrow(() -> new IllegalArgumentException("The manager does not exist"));
+                .findFirst().orElseThrow(() -> new InvalidIdException("The manager does not exist"));
         Employee employee = list.stream().filter(e -> e.getId().equals(employeeUUIDId))
-                .findFirst().orElseThrow(() -> new IllegalArgumentException("The employee does not exist"));
+                .findFirst().orElseThrow(() -> new InvalidIdException("The employee does not exist"));
 
         if (!manager.getClass().equals(Manager.class)) {
             throw new InvalidTypeException("Employee type is not a manager");
@@ -263,4 +246,11 @@ public class EmployeeService {
         employeeWriter.writeXML(source, sourceList);
     }
 
+    private static UUID getUUIDFromStringOrThrowException(String id) {
+        try {
+            return UUID.fromString(id);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidIdException("Id is not valid");
+        }
+    }
 }

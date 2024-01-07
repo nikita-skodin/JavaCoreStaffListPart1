@@ -123,6 +123,7 @@ public class EmployeeReader {
     }
 
     // public for tests
+
     /**
      * @throws PathIsNullException   if path is null
      * @throws FileNotFoundException if file not found
@@ -137,7 +138,7 @@ public class EmployeeReader {
         }
 
         if (!Files.exists(path)) {
-            throw new FileNotFoundException("File %s is not exist".formatted(path));
+            throw new FileNotFoundException("File %s does not exist".formatted(path));
         }
 
         if (Files.size(path) == 0L) {
@@ -150,17 +151,17 @@ public class EmployeeReader {
 
     private static class CustomErrorHandler implements ErrorHandler {
         @Override
-        public void warning(SAXParseException e) throws SAXException {
+        public void warning(SAXParseException e) {
             log.debug(e);
         }
 
         @Override
-        public void error(SAXParseException e) throws SAXException {
+        public void error(SAXParseException e) {
             log.debug(e);
         }
 
         @Override
-        public void fatalError(SAXParseException e) throws SAXException {
+        public void fatalError(SAXParseException e) {
             log.debug(e);
         }
     }

@@ -8,7 +8,6 @@ import lombok.extern.log4j.Log4j2;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Scanner;
-import java.util.UUID;
 
 @Log4j2
 public class ApplicationService {
@@ -22,11 +21,8 @@ public class ApplicationService {
 
         try {
             employees = employeeService.getAllEmployees(PATH);
-        } catch (IncorrectContentException | DamagedFileException e) {
-            write("File with list is damaged");
-            return;
-        } catch (PathIsNullException | FileNotFoundException e) {
-            write("File is not found");
+        } catch (InvalidInputDataExceptions e) {
+            write(e.getMessage());
             return;
         }
 
@@ -43,14 +39,8 @@ public class ApplicationService {
 
         try {
             employeeService.addNewEmployers(Path.of(source), PATH);
-        } catch (PathIsNullException | FileNotFoundException e) {
-            write("File is not found");
-            return;
-        } catch (FileIsEmptyException e) {
-            write("File is empty");
-            return;
-        } catch (IncorrectContentException | DamagedFileException e) {
-            write("File with list is damaged");
+        } catch (InvalidInputDataExceptions e) {
+            write(e.getMessage());
             return;
         }
 
@@ -71,17 +61,8 @@ public class ApplicationService {
         try {
             employeeService.changeEmployeeType(PATH, id,
                     EmployeeType.valueOf(EmployeeType.class, type));
-        } catch (PathIsNullException | FileNotFoundException e) {
-            write("File is not found");
-            return;
-        } catch (FileIsEmptyException e) {
-            write("File is empty");
-            return;
-        } catch (IncorrectContentException | DamagedFileException e) {
-            write("File with list is damaged");
-            return;
-        } catch (InvalidTypeException e) {
-            write("Employee with such id is already has one type");
+        } catch (InvalidInputDataExceptions e) {
+            write(e.getMessage());
             return;
         }
 
@@ -94,17 +75,8 @@ public class ApplicationService {
 
         try {
             employeeService.assignEmployeeToManager(PATH, managerId, employeeId);
-        } catch (PathIsNullException | FileNotFoundException e) {
-            write("File is not found");
-            return;
-        } catch (FileIsEmptyException e) {
-            write("File is empty");
-            return;
-        } catch (IncorrectContentException | DamagedFileException e) {
-            write("File with list is damaged");
-            return;
-        } catch (InvalidTypeException e) {
-            write("Employee with such id is not a Manager");
+        } catch (InvalidInputDataExceptions e) {
+            write(e.getMessage());
             return;
         }
 
@@ -114,14 +86,8 @@ public class ApplicationService {
     public void processSortListByFullName() {
         try {
             employeeService.sortByFullName(PATH);
-        } catch (PathIsNullException | FileNotFoundException e) {
-            write("File is not found");
-            return;
-        } catch (FileIsEmptyException e) {
-            write("File is empty");
-            return;
-        } catch (IncorrectContentException | DamagedFileException e) {
-            write("File with list is damaged");
+        } catch (InvalidInputDataExceptions e) {
+            write(e.getMessage());
             return;
         }
 
@@ -132,14 +98,8 @@ public class ApplicationService {
     public void processSortListByHiringDate() {
         try {
             employeeService.sortByHiringDate(PATH);
-        } catch (PathIsNullException | FileNotFoundException e) {
-            write("File is not found");
-            return;
-        } catch (FileIsEmptyException e) {
-            write("File is empty");
-            return;
-        } catch (IncorrectContentException | DamagedFileException e) {
-            write("File with list is damaged");
+        } catch (InvalidInputDataExceptions e) {
+            write(e.getMessage());
             return;
         }
 
@@ -152,17 +112,8 @@ public class ApplicationService {
 
         try {
             employeeService.removeEmployerById(PATH, id);
-        } catch (PathIsNullException | FileNotFoundException e) {
-            write("File is not found");
-            return;
-        } catch (FileIsEmptyException e) {
-            write("File is empty");
-            return;
-        } catch (IncorrectContentException | DamagedFileException e) {
-            write("File with list is damaged");
-            return;
-        } catch (IllegalArgumentException e) {
-            write("Id is not valid");
+        } catch (InvalidInputDataExceptions e) {
+            write(e.getMessage());
             return;
         }
 

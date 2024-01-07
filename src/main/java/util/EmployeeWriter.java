@@ -52,7 +52,7 @@ public class EmployeeWriter {
         }
 
         if (!Files.exists(path)) {
-            throw new FileNotFoundException("File %s is not exist".formatted(path));
+            throw new FileNotFoundException("File %s does not exist".formatted(path));
         }
 
         if (employees == null) {
