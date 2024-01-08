@@ -1,14 +1,15 @@
-package tests.util;
+package com.skodin.util;
 
-import entities.Employee;
-import exceptions.DamagedFileException;
-import exceptions.IncorrectContentException;
+import com.skodin.entities.Employee;
+import com.skodin.exceptions.*;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
-import tests.MainXMLTest;
-import util.EmployeeReader;
+import com.skodin.MainXMLTest;
 
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,7 +19,7 @@ class EmployeeReaderTest extends MainXMLTest {
     private final EmployeeReader employeeReader = new EmployeeReader();
 
     @Test
-    void readXML_readFromCorrectFile_returnsListOfEmployees() {
+    void readXML_validSourceFile_returnsListOfEmployees() {
         List<Employee> list = employeeReader.readXML(BIG_LIST_OF_EMPLOYEES_PATH);
 
         assertNotNull(list);
@@ -27,23 +28,22 @@ class EmployeeReaderTest extends MainXMLTest {
     }
 
     @Test
-    void readXML_readFromNonExistentFile_throwsNoSuchFileException() {
+    void readXML_nonExistentFile_throwsFileNotFoundException() {
         Path nonExistentPath = Path.of("non/existent/path");
 
-        NoSuchFileException exception = assertThrows(NoSuchFileException.class,
+        assertThrows(FileNotFoundException.class,
                 () -> employeeReader.readXML(nonExistentPath));
-        assertEquals(nonExistentPath.toString(), exception.getFile());
     }
 
     @Test
-    void readXML_readFromEmptyFile_returnsEmptyList() {
-        assertThrows(IllegalArgumentException.class,
+    void readXML_EmptyFile_throwsFileIsEmptyException() {
+        assertThrows(FileIsEmptyException.class,
                 () -> employeeReader.readXML(TEMP_FILE_PATH));
     }
 
     @Test
     @SneakyThrows
-    void readXML_readFromDamagedFile_throwsDamagedFileException() {
+    void readXML_damagedFile_throwsDamagedFileException() {
         Files.deleteIfExists(TEMP_FILE_PATH);
         Files.copy(EMPLOYEES_PATH, TEMP_FILE_PATH);
 
@@ -55,7 +55,7 @@ class EmployeeReaderTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void readXML_readFromIncorrectContentFile_throwsIncorrectContentException() {
+    void readXML_incorrectContentInFile_throwsIncorrectContentException() {
         String text = """
                 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
                 <employees>
@@ -74,27 +74,27 @@ class EmployeeReaderTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void readXML_readFromNullFile_throwsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class,
+    void readXML_nullFile_throwsPathIsNullException() {
+        assertThrows(PathIsNullException.class,
                 () -> employeeReader.readXML(null));
     }
 
     @Test
-    void pathValidate_throwsExceptionIfFileDoesNotExist_throwsNoSuchFileException() {
+    void pathValidate_NonExistentFile_throwsFileNotFoundException() {
         Path nonExistentFile = Path.of("non/existent/path");
-        assertThrows(NoSuchFileException.class,
+        assertThrows(FileNotFoundException.class,
                 () -> employeeReader.pathValidate(nonExistentFile));
     }
 
     @Test
-    void pathValidate_throwsExceptionIfFileIsEmpty_throwsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class,
+    void pathValidate_EmptyFile_throwsFileIsEmptyException() {
+        assertThrows(FileIsEmptyException.class,
                 () -> employeeReader.pathValidate(TEMP_FILE_PATH));
     }
 
     @Test
     @SneakyThrows
-    void pathValidate_throwsExceptionIfFileIsDamaged_throwsDamagedFileException() {
+    void pathValidate_DamagedFile_throwsDamagedFileException() {
         Files.copy(EMPLOYEES_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
 
         Files.writeString(TEMP_FILE_PATH, "invalid text", StandardOpenOption.APPEND);
@@ -105,8 +105,8 @@ class EmployeeReaderTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void pathValidate_throwsExceptionIfPathToFileIsNull_throwsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class,
+    void pathValidate_nullPath_throwsPathIsNullException() {
+        assertThrows(PathIsNullException.class,
                 () -> employeeReader.pathValidate(null));
     }
 }

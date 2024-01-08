@@ -1,8 +1,8 @@
-package tests;
+package com.skodin;
 
-import entities.Employee;
-import entities.Manager;
-import entities.OtherEmployee;
+import com.skodin.entities.Employee;
+import com.skodin.entities.Manager;
+import com.skodin.entities.OtherEmployee;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 

@@ -1,13 +1,12 @@
-package tests.util;
+package com.skodin.util;
 
-import entities.Employee;
+import com.skodin.entities.Employee;
+import com.skodin.exceptions.FileNotFoundException;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
-import tests.MainXMLTest;
-import util.EmployeeWriter;
+import com.skodin.MainXMLTest;
 
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,18 +17,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class EmployeeWriterTest extends MainXMLTest {
     private final EmployeeWriter employeeWriter = new EmployeeWriter();
     @Test
-    void writeXML_writeXMLtoNonExistentFile_throwsNoSuchFileException() {
+    void writeXML_nonExistentTargetFile_throwsFileNotFoundException() {
         Path nonExistentPath = Path.of("non/existent/path");
 
-        NoSuchFileException exception = assertThrows(NoSuchFileException.class,
+        assertThrows(FileNotFoundException.class,
                 () -> employeeWriter.writeXML(nonExistentPath, List.of(EMPLOYEE)));
-
-        assertEquals(exception.getFile(), nonExistentPath.toString());
     }
 
     @Test
     @SneakyThrows
-    void writeXML_writeXMLToNormalFile_write() {
+    void writeXML_validTargetFile_writeWML() {
         List<Employee> employees = getEmployees();
 
         employeeWriter.writeXML(TEMP_FILE_PATH, employees);
@@ -42,14 +39,14 @@ class EmployeeWriterTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void writeXML_writeXMLToNormalFileWithNullEmployees_write() {
-        assertThrows(IllegalArgumentException.class,
+    void writeXML_validTargetFileAndNullEmployees_write_throwsNullPointerException() {
+        assertThrows(NullPointerException.class,
                 () -> employeeWriter.writeXML(TEMP_FILE_PATH, null));
     }
 
     @Test
     @SneakyThrows
-    void writeXML_writeXMLToNormalFileWithEmptyEmployees_write() {
+    void writeXML_validTargetFileAndEmptyListOfEmployees_writeXML() {
         List<Employee> employees = new ArrayList<>();
 
         employeeWriter.writeXML(TEMP_FILE_PATH, employees);

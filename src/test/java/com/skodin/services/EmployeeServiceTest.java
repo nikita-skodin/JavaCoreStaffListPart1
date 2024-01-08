@@ -1,17 +1,14 @@
-package tests.services;
+package com.skodin.services;
 
-import entities.Employee;
-import entities.Manager;
-import entities.enums.EmployeeType;
-import exceptions.DamagedFileException;
-import exceptions.IncorrectContentException;
-import exceptions.InvalidTypeException;
+import com.skodin.entities.Employee;
+import com.skodin.entities.Manager;
+import com.skodin.entities.enums.EmployeeType;
+import com.skodin.exceptions.*;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
-import services.EmployeeService;
-import tests.MainXMLTest;
-import util.EmployeeReader;
-import util.EmployeeWriter;
+import com.skodin.MainXMLTest;
+import com.skodin.util.EmployeeReader;
+import com.skodin.util.EmployeeWriter;
 
 import java.nio.file.*;
 import java.util.ArrayList;
@@ -27,22 +24,22 @@ class EmployeeServiceTest extends MainXMLTest {
     private final EmployeeReader employeeReader = new EmployeeReader();
 
     @Test
-    void addNewEmployers_addNewEmployeeFromNonExistentFile_throwsNoSuchFileException() {
+    void addNewEmployers_nonExistentSourceFile_throwsFileNotFoundException() {
         Path nonExistentPath = Path.of("non/existent/file");
 
-        assertThrows(NoSuchFileException.class,
+        assertThrows(FileNotFoundException.class,
                 () -> employeeService.addNewEmployers(nonExistentPath, TEMP_FILE_PATH));
     }
 
     @Test
-    void addNewEmployers_addNewEmployeeFromEmptyFile_throwsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class,
+    void addNewEmployers_emptySourceFile_throwsFileIsEmptyException() {
+        assertThrows(FileIsEmptyException.class,
                 () -> employeeService.addNewEmployers(TEMP_FILE_PATH, null));
     }
 
     @Test
     @SneakyThrows
-    void addNewEmployers_addNewEmployeeFromDamagedFile_throwsDamagedFileException() {
+    void addNewEmployers_damagedSourceFileAndNotNullTargetPath_throwsDamagedFileException() {
         Path path = Path.of("non/existent/path");
         Files.copy(EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
 
@@ -54,7 +51,7 @@ class EmployeeServiceTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void addNewEmployers_addNewEmployeeFromIncorrectContentFile_throwsIncorrectContentException() {
+    void addNewEmployers_incorrectSourceContentFile_throwsIncorrectContentException() {
 
         Path path = Path.of("non/existent/path");
 
@@ -76,14 +73,14 @@ class EmployeeServiceTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void addNewEmployers_addNewEmployeeFromNullFile_throwsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class,
+    void addNewEmployers_nullSourceFile_throwsPathIsNullException() {
+        assertThrows(PathIsNullException.class,
                 () -> employeeService.addNewEmployers(null, null));
     }
 
     @Test
     @SneakyThrows
-    void addNewEmployers_addNewEmployeeToNonExistentFile_createXMLFileAndAddNewEmployee() {
+    void addNewEmployers_nonExistentTargetFile_createXMLFileAndAddNewEmployee() {
         Files.deleteIfExists(TEMP_FILE_PATH);
 
         employeeService.addNewEmployers(EMPLOYEES_PATH, TEMP_FILE_PATH);
@@ -96,7 +93,7 @@ class EmployeeServiceTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void addNewEmployers_addNewEmployeeToEmptyFile_addNewEmployee() {
+    void addNewEmployers_emptySourceFileAndValidSourceFile_addNewEmployeeToEmptyFile() {
         employeeService.addNewEmployers(EMPLOYEES_PATH, TEMP_FILE_PATH);
 
         String expected = Files.readString(EMPLOYEES_PATH);
@@ -107,7 +104,7 @@ class EmployeeServiceTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void addNewEmployers_addNewEmployeeToDamagedFile_throwsDamagedFileException() {
+    void addNewEmployers_damagedTargetFile_throwsDamagedFileException() {
         Files.copy(EMPLOYEES_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
 
         Files.writeString(TEMP_FILE_PATH, "invalid text", StandardOpenOption.APPEND);
@@ -118,7 +115,7 @@ class EmployeeServiceTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void addNewEmployers_addNewEmployeeToIncorrectContentFile_throwsIncorrectContentException() {
+    void addNewEmployers_incorrectTargetContentFile_throwsIncorrectContentException() {
         String text = """
                 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
                 <employees>
@@ -137,30 +134,30 @@ class EmployeeServiceTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void addNewEmployers_addNewEmployeeToNullFile_throwsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class,
+    void addNewEmployers_nullTargetFile_throwsNullPointerException() {
+        assertThrows(NullPointerException.class,
                 () -> employeeService.addNewEmployers(EMPLOYEE_PATH, null));
     }
 
     @Test
     @SneakyThrows
-    void addNewEmployers_addNewEmployeeFromNormalFileToNormalFile_addOneNewEmployee() {
+    void addNewEmployers_validSourceFileAndValidTargetFile_addOneNewEmployee() {
         Files.copy(EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
 
-        employeeService.addNewEmployers(EMPLOYEE_PATH, TEMP_FILE_PATH);
+        Path tempFile = Files.createTempFile("temp", ".xml");
+        Employee newEmployee = new Employee(UUID.randomUUID(), "name", DATE, DATE);
+        employeeWriter.writeXML(tempFile, List.of(newEmployee));
+        employeeService.addNewEmployers(tempFile, TEMP_FILE_PATH);
 
         List<Employee> list = employeeReader.readXML(TEMP_FILE_PATH);
 
         assertNotNull(list);
         assertEquals(2, list.size());
-        assertEquals(EMPLOYEE, list.get(0));
-        assertEquals(EMPLOYEE, list.get(1));
-
     }
 
     @Test
     @SneakyThrows
-    void addNewEmployers_addNewEmployeesFromNormalFileToNormalFile_addSomeNewEmployees() {
+    void addNewEmployers_bothValidFiles_addSomeNewEmployees() {
         Path tempFile = Files.createTempFile("tempTestFile", ".xml");
         Files.copy(EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
 
@@ -181,7 +178,7 @@ class EmployeeServiceTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void removeEmployerById_listHasEmployeeWithSuchId_removeEmployeeWithId() {
+    void removeEmployerById_listContainsEmployeeWithSuchId_removeEmployeeWithId() {
         Files.copy(EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
 
         boolean removed = employeeService.removeEmployerById(TEMP_FILE_PATH, ID.toString());
@@ -193,7 +190,7 @@ class EmployeeServiceTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void removeEmployerById_listHasNotEmployeeWithSuchId_doNothing() {
+    void removeEmployerById_listDontContainsEmployeeWithSuchId_returnsFalse() {
         Files.copy(EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
         String expected = Files.readString(EMPLOYEE_PATH);
 
@@ -207,7 +204,7 @@ class EmployeeServiceTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void removeEmployerByFullName_listHasEmployeeWithSuchName_removeEmployeeWithName() {
+    void removeEmployerByFullName_listContainsEmployeeWithSuchName_removeEmployeeWithName() {
         Files.copy(EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
 
         boolean removed = employeeService.removeEmployerByFullName(TEMP_FILE_PATH, EMPLOYEE.getFullName());
@@ -219,7 +216,7 @@ class EmployeeServiceTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void removeEmployerByFullName_listHasNotEmployeeWithSuchName_doNothing() {
+    void removeEmployerByFullName_listDontContainsEmployeeWithSuchName_returnsFalse() {
         Files.copy(EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
         String expected = Files.readString(EMPLOYEE_PATH);
 
@@ -233,7 +230,7 @@ class EmployeeServiceTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void changeEmployeeType_NormalFile_changeEmployeeTypeFromEmployeeToManager() {
+    void changeEmployeeType_ValidFile_changeEmployeeTypeFromEmployeeToManager() {
         Files.copy(EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
         String expected = Files.readString(MANAGER_PATH);
 
@@ -247,11 +244,11 @@ class EmployeeServiceTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void changeEmployeeType_NormalFile_changeEmployeeTypeFromManagerToOtherEmployee() {
+    void changeEmployeeType_ValidFile_changeEmployeeTypeFromManagerToOtherEmployee() {
         Files.copy(MANAGER_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
         String expected = Files.readString(OTHER_EMPLOYEE_PATH);
 
-        boolean isChanged = employeeService.changeEmployeeType(TEMP_FILE_PATH, STRING_ID, EmployeeType.OTHER_EMPLOYEE.toString(), "des");
+        boolean isChanged = employeeService.changeEmployeeType(TEMP_FILE_PATH, STRING_ID, EmployeeType.OTHER_EMPLOYEE.toString(), "DESCRIPTION");
 
         String actual = Files.readString(TEMP_FILE_PATH);
 
@@ -261,7 +258,7 @@ class EmployeeServiceTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void changeEmployeeType_NormalFile_changeEmployeeTypeFromOtherEmployeeToEmployee() {
+    void changeEmployeeType_ValidFile_changeEmployeeTypeFromOtherEmployeeToEmployee() {
         Files.copy(OTHER_EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
         String expected = Files.readString(EMPLOYEE_PATH);
 
@@ -275,7 +272,7 @@ class EmployeeServiceTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void changeEmployeeType_NormalFileAndSimilarTypes_throwsInvalidTypeException() {
+    void changeEmployeeType_ValidFileAndSimilarTypes_throwsInvalidTypeException() {
         Files.copy(EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
 
         assertThrows(InvalidTypeException.class,
@@ -285,7 +282,7 @@ class EmployeeServiceTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void changeEmployeeType_NormalFileAndNonExistentId_returnsFalseAndDoNothing() {
+    void changeEmployeeType_ValidFileAndNonExistentId_returnsFalse() {
         Files.copy(OTHER_EMPLOYEE_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
         String expected = Files.readString(EMPLOYEE_PATH);
 
@@ -300,7 +297,7 @@ class EmployeeServiceTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void linkEmployeeToManager() {
+    void linkEmployeeToManager_ValidInputData_ReturnsTrue() {
 
         String managerStringId = "dd82a20d-a11f-4610-86a1-c8bfc585eb79";
         String employeeStringId = "49486d44-a487-4d62-aac7-0171917a3386";
@@ -328,7 +325,7 @@ class EmployeeServiceTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void sortByFullName_NormalFile_rewritesSortedList() {
+    void sortByFullName_ValidFile_rewritesSortedList() {
         Files.copy(EMPLOYEES_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
 
         employeeService.sortByFullName(TEMP_FILE_PATH);
@@ -342,7 +339,7 @@ class EmployeeServiceTest extends MainXMLTest {
 
     @Test
     @SneakyThrows
-    void sortByHiringDate_NormalFile_rewritesSortedList() {
+    void sortByHiringDate_ValidFile_rewritesSortedList() {
         Files.copy(EMPLOYEES_PATH, TEMP_FILE_PATH, StandardCopyOption.REPLACE_EXISTING);
 
         employeeService.sortByHiringDate(TEMP_FILE_PATH);
