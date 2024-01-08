@@ -1,4 +1,4 @@
-package entities;
+package com.skodin.entities;
 
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;

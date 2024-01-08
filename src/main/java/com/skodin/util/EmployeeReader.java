@@ -1,9 +1,9 @@
-package util;
+package com.skodin.util;
 
-import entities.Employee;
-import entities.Manager;
-import entities.OtherEmployee;
-import exceptions.*;
+import com.skodin.entities.Employee;
+import com.skodin.entities.Manager;
+import com.skodin.entities.OtherEmployee;
+import com.skodin.exceptions.*;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.w3c.dom.Document;
@@ -61,7 +61,9 @@ public class EmployeeReader {
         try {
             read(rootElement, list);
         } catch (NullPointerException e) {
-            throw new IncorrectContentException("File %s contains incorrect data".formatted(path));
+            String message = "File %s contains incorrect data".formatted(path);
+            log.warn("Message: " + message);
+            throw new IncorrectContentException(message);
         }
 
         return list;
@@ -117,7 +119,9 @@ public class EmployeeReader {
         try {
             document = builder.parse(path.toFile());
         } catch (SAXException | IOException e) {
-            throw new DamagedFileException("File %s is damaged".formatted(path));
+            String message = "File %s is damaged".formatted(path);
+            log.warn("Message: " + message);
+            throw new DamagedFileException(message);
         }
         return document;
     }
@@ -134,15 +138,21 @@ public class EmployeeReader {
     public void pathValidate(Path path) {
 
         if (path == null) {
-            throw new PathIsNullException("Path cannot be null");
+            String message = "Path cannot be null";
+            log.warn("Message: " + message);
+            throw new PathIsNullException(message);
         }
 
         if (!Files.exists(path)) {
-            throw new FileNotFoundException("File %s does not exist".formatted(path));
+            String message = "File %s does not exist".formatted(path);
+            log.warn("Message: " + message);
+            throw new FileNotFoundException(message);
         }
 
         if (Files.size(path) == 0L) {
-            throw new FileIsEmptyException("File %s is empty".formatted(path));
+            String message = "File %s is empty".formatted(path);
+            log.warn("Message: " + message);
+            throw new FileIsEmptyException(message);
         }
 
         checkIsFileDamaged(path);

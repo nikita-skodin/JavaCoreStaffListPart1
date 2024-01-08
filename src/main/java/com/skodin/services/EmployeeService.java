@@ -1,13 +1,14 @@
-package services;
+package com.skodin.services;
 
-import entities.Employee;
-import entities.Manager;
-import entities.OtherEmployee;
-import entities.enums.EmployeeType;
-import exceptions.*;
+import com.skodin.entities.Employee;
+import com.skodin.entities.Manager;
+import com.skodin.entities.OtherEmployee;
+import com.skodin.entities.enums.EmployeeType;
+import com.skodin.exceptions.*;
 import lombok.SneakyThrows;
-import util.EmployeeReader;
-import util.EmployeeWriter;
+import com.skodin.util.EmployeeReader;
+import com.skodin.util.EmployeeWriter;
+import lombok.extern.log4j.Log4j2;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,6 +17,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+@Log4j2
 public class EmployeeService {
 
     private final EmployeeReader employeeReader = new EmployeeReader();
@@ -268,6 +270,7 @@ public class EmployeeService {
         try {
             return UUID.fromString(id);
         } catch (IllegalArgumentException e) {
+            log.warn("Message: " + e);
             throw new InvalidIdException("Id is not valid");
         }
     }

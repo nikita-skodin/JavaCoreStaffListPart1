@@ -1,8 +1,8 @@
-package application;
+package com.skodin.application;
 
-import application.enums.UserOperations;
+import com.skodin.application.enums.UserOperations;
 import lombok.extern.log4j.Log4j2;
-import services.ApplicationService;
+import com.skodin.services.ApplicationService;
 
 import java.util.Scanner;
 

@@ -1,4 +1,4 @@
-package exceptions;
+package com.skodin.exceptions;
 
 public class PathIsNullException extends InvalidInputDataExceptions{
     public PathIsNullException(String message) {

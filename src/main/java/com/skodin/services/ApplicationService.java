@@ -1,8 +1,8 @@
-package services;
+package com.skodin.services;
 
-import entities.Employee;
-import entities.enums.EmployeeType;
-import exceptions.InvalidInputDataExceptions;
+import com.skodin.entities.Employee;
+import com.skodin.entities.enums.EmployeeType;
+import com.skodin.exceptions.InvalidInputDataExceptions;
 import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;

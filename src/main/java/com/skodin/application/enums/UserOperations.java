@@ -1,4 +1,4 @@
-package application.enums;
+package com.skodin.application.enums;
 
 import lombok.Getter;
 

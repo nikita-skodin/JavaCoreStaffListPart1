@@ -1,10 +1,11 @@
-package util;
+package com.skodin.util;
 
-import entities.Employee;
-import entities.Manager;
-import entities.OtherEmployee;
-import exceptions.*;
+import com.skodin.entities.Employee;
+import com.skodin.entities.Manager;
+import com.skodin.entities.OtherEmployee;
+import com.skodin.exceptions.*;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -24,6 +25,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Properties;
 
+@Log4j2
 public class EmployeeWriter {
 
     private final DocumentBuilder builder;
@@ -32,6 +34,7 @@ public class EmployeeWriter {
         try {
             builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         } catch (ParserConfigurationException e) {
+            log.error("Exception: " + e);
             throw new RuntimeException(e);
         }
     }
@@ -46,17 +49,24 @@ public class EmployeeWriter {
      */
     @SneakyThrows
     public void writeXML(Path path, List<Employee> employees) {
+        log.info("Attempt to write xml");
 
         if (path == null) {
-            throw new PathIsNullException("Path cannot be null");
+            String message = "Path cannot be null";
+            log.warn("Message: " + message);
+            throw new PathIsNullException(message);
         }
 
         if (!Files.exists(path)) {
-            throw new FileNotFoundException("File %s does not exist".formatted(path));
+            String message = "File %s does not exist".formatted(path);
+            log.warn("Message: " + message);
+            throw new FileNotFoundException(message);
         }
 
         if (employees == null) {
-            throw new NullPointerException("List cannot be null");
+            String message = "List cannot be null";
+            log.warn("Message: " + message);
+            throw new NullPointerException(message);
         }
 
         Document document = builder.newDocument();
@@ -67,6 +77,7 @@ public class EmployeeWriter {
         write(document, employees, root);
 
         save(document, path);
+        log.info("Xml was written successfully");
     }
 
     private void write(Document document, List<Employee> employees, Element rootElement) {

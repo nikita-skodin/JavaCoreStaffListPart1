@@ -1,4 +1,4 @@
-package entities.enums;
+package com.skodin.entities.enums;
 
 public enum EmployeeType {
 
