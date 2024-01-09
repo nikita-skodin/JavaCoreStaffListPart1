@@ -9,7 +9,7 @@ Configuration:
 
     RollingFile:
       - name: LogToRollingFile
-        fileName: logs/app.log
+        fileName: programFiles/logs/app.log
         filePattern: "logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log"
         PatternLayout:
           pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss} [%t] %c{1} - %msg%n"

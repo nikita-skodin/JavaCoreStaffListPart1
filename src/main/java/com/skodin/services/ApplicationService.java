@@ -16,7 +16,7 @@ public class ApplicationService {
 
     private final Scanner scanner = new Scanner(System.in);
     private final EmployeeService employeeService = new EmployeeService();
-    private final Path PATH = Path.of("src/main/resources/data.xml");
+    private final Path PATH = Path.of("programFiles/data.xml");
 
     {
         if (!Files.exists(PATH)) {
