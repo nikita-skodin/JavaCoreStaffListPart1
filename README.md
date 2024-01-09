@@ -4,9 +4,9 @@ is designed to account for employees using an XML file as storage.
 
 ## Overview
 - [Stack](#Stack)
-- [Technical Specification](#Technical Specification)
+- [Technical Specification](#Technical-Specification)
 - [Requirements](#Requirements)
-- [Getting Started](#Getting Started)
+- [Getting Started](#Getting-Started)
 - [Testing](#Testing)
 
 ## Stack
