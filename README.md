@@ -23,11 +23,13 @@ https://docs.google.com/document/d/16h9Qw2vkAlhw-T1qPQ6c2quRWpbbf-LIKlvOxzHZ6Wo/
 Java 17+ is required to run the application
 
 ## Getting Started
-The fat-jar file with the build is located right in the root of the project,
-run it from there with the following command:
+The fat-jar file with the build is located right in the root of the project.
+Run it from there with the following command:
 ```sh
 java -jar StaffList-1.jar
 ```
+During the operation of the application, a programFiles folder will be created containing application logs
+and a xml document with information about employees
 
 ## Testing
 - Service class test coverage is about 100 percent
