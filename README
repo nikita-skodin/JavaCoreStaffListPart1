@@ -1,5 +1,12 @@
 Technical task link:
     https://docs.google.com/document/d/16h9Qw2vkAlhw-T1qPQ6c2quRWpbbf-LIKlvOxzHZ6Wo/pub
 
+Stack:
+    Java core,
+    Xml (DOM),
+    Maven,
+    JUnit5
+
 Testing:
     file in src/test/resources/xml/new/ read only
+
