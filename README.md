@@ -30,6 +30,6 @@ java -jar StaffList-1.jar
 ```
 
 ## Testing
-Service class test coverage is about 100 percent\n
-file in src/test/resources/xml/ read only\n
-JUnit5 was used for testing\n
+- Service class test coverage is about 100 percent
+- Files in src/test/resources/xml/ read only
+- JUnit5 was used for testing
